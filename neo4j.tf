@@ -1,9 +1,6 @@
-# Crear una Elastic IP
 resource "aws_eip" "neo4j" {
-  vpc = true
 }
 
-# Crear el grupo de seguridad para permitir acceso a la instancia
 resource "aws_security_group" "neo4j_sg" {
   name        = "neo4j-security-group"
   description = "Grupo de seguridad para Neo4j"
@@ -17,15 +14,8 @@ resource "aws_security_group" "neo4j_sg" {
   }
 
   ingress {
-    from_port   = 80
+    from_port   = 80    # HTTP
     to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -44,13 +34,6 @@ resource "aws_security_group" "neo4j_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    from_port   = 5000
-    to_port     = 5000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -59,19 +42,13 @@ resource "aws_security_group" "neo4j_sg" {
   }
 }
 
-# Crear una instancia EC2 para Neo4j
 resource "aws_instance" "neo4j_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f" # Amazon Linux 2 AMI (actualiza si es necesario)
   instance_type         = "t2.micro"
   subnet_id             = aws_subnet.public.id
-  key_name              = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.neo4j_sg.id]
-  depends_on = [ aws_s3_bucket.bucket_for_file ]
+  depends_on = [ null_resource.create_bucket_and_upload ]
 
-  # Asociar el rol de IAM a la instancia
-  iam_instance_profile = "EMR_EC2_DefaultRole"
-
-  # Configuración para instalar Neo4j y descargar el archivo de configuración desde S3
   user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
@@ -88,7 +65,7 @@ resource "aws_instance" "neo4j_instance" {
               sudo yum install neo4j -y
 
               # Descargar el archivo de configuración de neo4j
-              aws s3 cp s3://${aws_s3_bucket.bucket_for_file.bucket}/neo4j.conf /etc/neo4j/neo4j.conf            
+              aws s3 cp s3://neo4j-tscd-90-10-2024/neo4j.conf /etc/neo4j/neo4j.conf            
 
               # Instalar Neo4j
               INSTANCE_PUBLIC_IP=${aws_eip.neo4j.public_ip}

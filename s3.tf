@@ -1,17 +1,13 @@
-# Bucket genérico para código y ficheros de configuración
-resource "aws_s3_bucket" "bucket_for_file" {
-  bucket = "neo4j-tscd-23-10-2024"
-}
+resource "null_resource" "create_bucket_and_upload" {
+  provisioner "local-exec" {
+    command = <<EOT
+      # Check if the bucket exists; create it if it doesn't
+      if ! aws s3api head-bucket --bucket neo4j-tscd-100-10-2024 2>/dev/null; then
+        aws s3api create-bucket --bucket neo4j-tscd-100-10-2024 --region us-east-1
+      fi
 
-# Subir un archivo a S3
-resource "aws_s3_object" "file_upload_neo4j_conf" {
-  bucket = aws_s3_bucket.bucket_for_file.bucket
-  key    = "neo4j.conf"
-  source = "./neo4j.conf"  # Ruta al archivo de configuración de Neo4j
-}
-
-resource "aws_s3_object" "zip_upload_neo4j_web_service" {
-  bucket = aws_s3_bucket.bucket_for_file.bucket
-  key    = "neo4j_web_service.zip"
-  source = "../ec2/neo4j_web_service.zip"
+      # Upload the neo4j.conf file to the bucket
+      aws s3 cp ./neo4j.conf s3://neo4j-tscd-100-10-2024/neo4j.conf
+    EOT
+  }
 }
