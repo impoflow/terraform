@@ -31,6 +31,8 @@ resource "aws_instance" "scrapper_instance" {
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.scrapper_sg.id]
 
+  iam_instance_profile = "myS3Role"
+
   # Configuración
   user_data = <<-EOF
               #!/bin/bash
