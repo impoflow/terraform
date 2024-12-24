@@ -1,6 +1,5 @@
 # Crear una Elastic IP
 resource "aws_eip" "scrapper" {
-  vpc = true
 }
 
 # Grupo de seguridad de la instancia
@@ -35,15 +34,35 @@ resource "aws_instance" "scrapper_instance" {
   # Configuración
   user_data = <<-EOF
               #!/bin/bash
+              set -e  # Exit on any error
 
+              # Add Docker repository
               sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-              
+
+              # Install Docker
+              sudo dnf install -y docker
+
+              # Start Docker service
+              sudo systemctl start docker
+              sudo systemctl enable docker
+
+              # Add the current user to the Docker group to avoid permission issues
+              sudo usermod -aG docker ec2-user
+
+              # Create directory for data storage
+              sudo mkdir -p /datalake
+
+              # Ensure the Docker daemon is ready
+              sleep 10  # Give Docker time to initialize
+
+              # Login to Docker registry
               echo ${var.docker-passwd} | docker login -u ${var.docker-username} --password-stdin
-              docker pull ${var.docker-username}/github-scrapper
 
-              mkdir ./datalake
+              # Pull the Docker image
+              sudo docker pull ${var.docker-username}/github-scrapper
 
-              docker run -d --name github-scrapper -v $(pwd)/datalake:/app/datalake ${var.docker-username}/github-scrapper
+              # Run the container
+              sudo docker run -d --name github-scrapper -v /datalake:/app/datalake ${var.docker-username}/github-scrapper
               EOF
 
   tags = {
