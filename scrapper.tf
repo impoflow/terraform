@@ -64,7 +64,7 @@ resource "aws_instance" "scrapper_instance" {
               sudo docker pull ${var.docker-username}/github-scrapper
 
               # Run the container
-              sudo docker run -d --name github-scrapper -v /datalake:/app/datalake ${var.docker-username}/github-scrapper
+              sudo  docker run -e "BUCKET_NAME=${var.bucket_name}" -e "REGION=us-east-1" ${var.docker-username}/github-scrapper
               EOF
 
   tags = {

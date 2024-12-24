@@ -8,6 +8,11 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable "bucket_name" {
+  description = "bucket name"
+  default = "neo4j-tscd-100-10-2024"
+}
+
 variable "neo4j_username" {
   description = "Nombre de usuario para Neo4j"
   default = "words_db_manager"
