@@ -17,3 +17,14 @@ variable "mage_project_name" {
   description = "Nombre del proyecto Mage"
   default = "data-orchestator"
 }
+
+variable "docker-username" {
+  description = "Username for DockerHub"
+  type = string
+}
+
+variable "docker-passwd" {
+  description = "Password for DockerHub"
+  type = string
+  sensitive = true
+}
