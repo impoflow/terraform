@@ -65,7 +65,7 @@ resource "aws_instance" "neo4j_instance" {
               sudo yum install neo4j -y
 
               # Descargar el archivo de configuración de neo4j
-              aws s3 cp s3://neo4j-tscd-90-10-2024/neo4j.conf /etc/neo4j/neo4j.conf            
+              aws s3 cp s3://${var.bucket_name}/neo4j.conf /etc/neo4j/neo4j.conf            
 
               # Instalar Neo4j
               INSTANCE_PUBLIC_IP=${aws_eip.neo4j.public_ip}
