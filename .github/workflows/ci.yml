@@ -17,10 +17,12 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         AWS_REGION: "us-east-1"
       run: |
         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-        echo ${{ secrets.AWS_CREDENTIALS }} > ~/.aws/credentials
+        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+        aws configure set aws_session_token $AWS_SESSION_TOKEN
 
     - name: Install Terraform
       run: |
