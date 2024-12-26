@@ -35,6 +35,12 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
+    - name: Generate SSH Key Pair
+      run: |
+        ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-ssh-key -N "" -C "github-actions@my-domain.com"
+        echo "SSH key generated:"
+        cat ~/.ssh/my-ssh-key.pub
+
     - name: Terraform Apply
       run: terraform apply -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
 
