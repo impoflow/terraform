@@ -19,8 +19,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: "us-east-1"
       run: |
-        sudo aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-        sudo echo ${{ secrets.AWS_CREDENTIALS }} > ~/.aws/credentials
+        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        echo ${{ secrets.AWS_CREDENTIALS }} > ~/.aws/credentials
 
     - name: Install Terraform
       run: |
@@ -37,9 +37,9 @@ jobs:
 
     - name: Generate SSH Key Pair
       run: |
-        sudo ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-ssh-key -N "" -C "github-actions@my-domain.com"
-        sudo echo "SSH key generated:"
-        sudo cat ~/.ssh/my-ssh-key.pub
+        ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-ssh-key -N "" -C "github-actions@my-domain.com"
+        echo "SSH key generated:"
+        cat ~/.ssh/my-ssh-key.pub
 
     - name: Terraform Apply
       run: sudo terraform apply -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
