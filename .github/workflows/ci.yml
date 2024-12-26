@@ -14,24 +14,24 @@ jobs:
 
       - name: Install Required Tools
         run: |
-          apt-get update
-          apt-get install -y curl gnupg software-properties-common docker.io
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg software-properties-common docker.io
 
       - name: Install Terraform
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-          apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          apt-get update && apt-get install -y terraform
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && apt-get install -y terraform
 
       - name: Install tflocal
         run: |
-          apt-get update
-          apt-get install -y python3-pip
-          pip3 install terraform-local
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          sudo pip3 install terraform-local
       
       - name: Start LocalStack
         run: |
-          docker run -d --name localstack -p 4566:4566 -p 4571:4571 localstack/localstack
+          sudo docker run -d --name localstack -p 4566:4566 -p 4571:4571 localstack/localstack
 
       - name: Initialize Terraform
         run: tflocal init
