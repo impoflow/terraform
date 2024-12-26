@@ -19,12 +19,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: "us-east-1"
       run: |
-        sudo su
-        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-        cat ~/.aws/credentials
-        
-        echo ${{ secrets.AWS_CREDENTIALS }} > ~/.aws/credentials
-        cat ~/.aws/credentials
+        sudo aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        sudo echo ${{ secrets.AWS_CREDENTIALS }} > ~/.aws/credentials
 
     - name: Install Terraform
       run: |
@@ -41,12 +37,12 @@ jobs:
 
     - name: Generate SSH Key Pair
       run: |
-        ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-ssh-key -N "" -C "github-actions@my-domain.com"
-        echo "SSH key generated:"
-        cat ~/.ssh/my-ssh-key.pub
+        sudo ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-ssh-key -N "" -C "github-actions@my-domain.com"
+        sudo echo "SSH key generated:"
+        sudo cat ~/.ssh/my-ssh-key.pub
 
     - name: Terraform Apply
-      run: terraform apply -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
+      run: sudo terraform apply -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
 
     - name: Terraform Destroy
-      run: terraform destroy -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
+      run: sudo terraform destroy -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
