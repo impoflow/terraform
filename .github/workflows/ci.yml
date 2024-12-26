@@ -19,6 +19,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: "us-east-1"
       run: |
+        sudo su
         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
         cat ~/.aws/credentials
         
