@@ -20,7 +20,10 @@ jobs:
         AWS_REGION: "us-east-1"
       run: |
         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        cat ~/.aws/credentials
+        
         echo ${{ secrets.AWS_CREDENTIALS }} > ~/.aws/credentials
+        cat ~/.aws/credentials
 
     - name: Install Terraform
       run: |
