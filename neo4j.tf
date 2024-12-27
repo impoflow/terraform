@@ -49,6 +49,8 @@ resource "aws_instance" "neo4j_instance" {
   vpc_security_group_ids = [aws_security_group.neo4j_sg.id]
   depends_on = [ null_resource.create_bucket_and_upload ]
 
+  iam_instance_profile = "myS3Role"
+
   user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
@@ -80,12 +82,12 @@ resource "aws_instance" "neo4j_instance" {
   }
 }
 
-resource "aws_eip_association" "eip_association" {
+resource "aws_eip_association" "neo4j_eip_association" {
   instance_id   = aws_instance.neo4j_instance.id
   allocation_id = aws_eip.neo4j.id
 }
 
-output "instance_public_ip" {
+output "neo4j_instance_public_ip" {
   description = "La IP pública de la instancia Neo4j"
   value       = "Neo4j: http://${aws_eip.neo4j.public_ip}:7474"
 }

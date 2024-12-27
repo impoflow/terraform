@@ -55,22 +55,33 @@ resource "aws_instance" "mage_instance" {
   vpc_security_group_ids = [aws_security_group.mage_sg.id]
 
   user_data = <<-EOF
-              #!/bin/bash
-              sudo yum update -y
+                #!/bin/bash
+                set -e
 
-              # Instalamos python3 y venv
-              sudo yum install -y python3-venv
+                # Actualizamos el sistema
+                sudo yum update -y
 
-              # Crear un entorno virtual
-              python3 -m venv myenv
-              source myenv/bin/activate
+                # Instalamos Python 3
+                sudo yum install -y python3
 
-              # Instalar Mage AI dentro del entorno virtual
-              pip install mage-ai
+                # Instalamos pip si no está disponible
+                sudo python3 -m ensurepip
 
-              # Iniciar Mage AI en segundo plano
-              nohup mage start ${var.mage_project_name} &
-              EOF
+                # Creamos un entorno virtual para Mage AI
+                python3 -m venv /home/ec2-user/myenv
+                source /home/ec2-user/myenv/bin/activate
+
+                # Instalamos Mage AI
+                pip install --upgrade pip
+                pip install mage-ai
+
+                if [ ! -d "/home/ec2-user/${var.mage_project_name}" ]; then
+                    mage init "/home/ec2-user/${var.mage_project_name}"
+                fi
+
+                # Iniciamos Mage AI en segundo plano
+                nohup mage start "/home/ec2-user/${var.mage_project_name}" --host 0.0.0.0 --port 6789 &
+                EOF
 
   tags = {
     Name = "Mage-Instance"
