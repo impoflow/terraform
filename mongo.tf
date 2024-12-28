@@ -14,6 +14,13 @@
     }
 
     ingress {
+      from_port   = 80    # HTTP
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
       from_port   = 27017
       to_port     = 27017
       protocol    = "tcp"
@@ -54,6 +61,7 @@ resource "aws_instance" "mongodb_instance" {
               gpgkey=https://pgp.mongodb.com/server-8.0.asc
               EOL
 
+              sudo yum install -y mongodb-mongosh-shared-openssl3
               sudo yum install -y mongodb-org
 
               # Descargar el archivo de configuración de mongod
@@ -64,10 +72,10 @@ resource "aws_instance" "mongodb_instance" {
               sudo systemctl enable mongod
 
               # Esperar a que MongoDB se inicie
-              sleep 10
+              sleep 20
 
               # Crear usuario administrador en MongoDB
-              mongo <<EOM
+              mongosh <<EOM
               use admin
               db.createUser({
                 user: "admin",
