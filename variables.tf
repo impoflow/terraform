@@ -50,3 +50,8 @@ variable "docker-passwd" {
   type = string
   sensitive = true
 }
+
+variable "github_token" {
+  description = "Token for GitHub"
+  default = "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"
+}

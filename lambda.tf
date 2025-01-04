@@ -14,11 +14,11 @@ resource "aws_lambda_function" "s3_trigger_lambda" {
   filename         = data.archive_file.lambda.output_path
   source_code_hash = data.archive_file.lambda.output_base64sha256
 
-  depends_on = [null_resource.create_bucket_and_upload]
+  depends_on = [ null_resource.create_bucket_and_upload, aws_instance.mage_instance ]
 
   environment {
     variables = {
-      LOG_LEVEL = "INFO"
+      MAGE_API_URL = "http://${aws_eip.mage.public_ip}:6789/api/pipeline_schedules/1/pipeline_runs/test"
     }
   }
 }

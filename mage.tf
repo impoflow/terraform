@@ -62,7 +62,7 @@ resource "aws_instance" "mage_instance" {
                 sudo yum update -y
 
                 # Instalamos Python 3
-                sudo yum install -y python3
+                sudo yum install -y python3 git
 
                 # Instalamos pip si no está disponible
                 sudo python3 -m ensurepip
@@ -71,16 +71,22 @@ resource "aws_instance" "mage_instance" {
                 python3 -m venv /home/ec2-user/myenv
                 source /home/ec2-user/myenv/bin/activate
 
-                # Instalamos Mage AI
+                # Instalamos Mage AI y dependencias adicionales
                 pip install --upgrade pip
                 pip install mage-ai
+                pip install neo4j pymongo
 
-                if [ ! -d "/home/ec2-user/${var.mage_project_name}" ]; then
-                    mage init "/home/ec2-user/${var.mage_project_name}"
+                # Clonamos el repositorio de Mage AI
+                cd /home/ec2-user
+                if [ ! -d "mage" ]; then
+                    git clone https://${var.github_token}@github.com/impoflow/mage.git
                 fi
 
-                # Iniciamos Mage AI en segundo plano
-                nohup mage start "/home/ec2-user/${var.mage_project_name}" --host 0.0.0.0 --port 6789 &
+                # Navegamos al proyecto clonado
+                cd /home/ec2-user/mage
+
+                # Iniciamos Mage AI desde el proyecto clonado
+                nohup mage start "/home/ec2-user/mage" --host 0.0.0.0 --port 6789 &
                 EOF
 
   tags = {
