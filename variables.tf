@@ -10,12 +10,7 @@ variable "region" {
 
 variable "bucket_name" {
   description = "bucket name"
-  default = "neo4j-tscd-100-10-2024"
-}
-
-variable "neo4j_username" {
-  description = "Nombre de usuario para Neo4j"
-  default = "words_db_manager"
+  default = "neo4j-tscd-110-10-2024"
 }
 
 variable "mage_project_name" {
@@ -23,9 +18,31 @@ variable "mage_project_name" {
   default = "data-orchestator"
 }
 
+variable "neo4j_username" {
+  description = "Nombre de usuario para Neo4j"
+  default = "user"
+}
+
+variable "neo4j-passwd" {
+  description = "Password for neo4j"
+  type = string
+  sensitive = true
+}
+
+variable "mongodb_username" {
+  description = "Nombre de usuario para MongoDB"
+  default = "user"
+}
+
+variable "mongodb-passwd" {
+  description = "Password for mongodb"
+  type = string
+  sensitive = true
+}
+
 variable "docker-username" {
   description = "Username for DockerHub"
-  type = string
+  default = ""
 }
 
 variable "docker-passwd" {
