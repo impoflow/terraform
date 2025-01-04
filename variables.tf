@@ -42,7 +42,7 @@ variable "mongodb-passwd" {
 
 variable "docker-username" {
   description = "Username for DockerHub"
-  default = ""
+  default = "autogram"
 }
 
 variable "docker-passwd" {

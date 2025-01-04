@@ -42,7 +42,7 @@ jobs:
           cat ~/.ssh/my-ssh-key.pub
 
       - name: Terraform Plan
-        run: tflocal plan -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
+        run: tflocal plan -var="mongo-passwd=${{ secrets.DOCKER_PASSWD }}" -var="neo4j-passwd=${{ secrets.DOCKER_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
 
 
   aws-deployment-test:
@@ -83,10 +83,10 @@ jobs:
         cat ~/.ssh/my-ssh-key.pub
 
     - name: Terraform Plan
-      run: terraform plan -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
+      run: terraform plan -var="mongo-passwd=${{ secrets.DOCKER_PASSWD }}" -var="neo4j-passwd=${{ secrets.DOCKER_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
 
     - name: Terraform Apply
-      run: terraform apply -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
+      run: terraform apply -var="mongo-passwd=${{ secrets.DOCKER_PASSWD }}" -var="neo4j-passwd=${{ secrets.DOCKER_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
 
     - name: Terraform Destroy
-      run: terraform destroy -var="docker-username=${{ secrets.DOCKER_USERNAME }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
+      run: terraform destroy -var="mongo-passwd=${{ secrets.DOCKER_PASSWD }}" -var="neo4j-passwd=${{ secrets.DOCKER_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
