@@ -1,68 +1,119 @@
 import json
+import boto3
 import http.client
-from urllib.parse import urlparse
 import os
+from urllib.parse import urlparse
+from typing import Dict, Any, List
 
-def lambda_handler(event, context):
-    """
-    AWS Lambda handler para procesar eventos de S3 y enviar datos a una API externa usando http.client.
-    """
-    mage_api_url = os.environ.get("MAGE_API_URL")
 
-    if not mage_api_url:
-        raise ValueError("La variable de entorno MAGE_API_URL no está configurada.")
-    
-    parsed_url = urlparse(mage_api_url)
-    host = parsed_url.hostname
-    port = parsed_url.port if parsed_url.port else (443 if parsed_url.scheme == 'https' else 80)
-    path = parsed_url.path
+class ConfigError(Exception):
+    """Excepción lanzada cuando la configuración es inválida o está incompleta."""
+    pass
 
-    print("Evento recibido:", json.dumps(event, indent=2))
-    
-    responses = []
-    
-    for record in event.get('Records', []):
+
+class S3Reader:    
+    def __init__(self, s3_client=None):
+        self.s3 = s3_client or boto3.client('s3')
+
+    def read_json_object(self, bucket_name: str, object_key: str) -> Dict[str, Any]:
         try:
-            bucket_name = record['s3']['bucket']['name']
-            object_key = record['s3']['object']['key']
+            s3_object = self.s3.get_object(Bucket=bucket_name, Key=object_key)
+            object_content = s3_object['Body'].read().decode('utf-8')
+            return json.loads(object_content)
+        except Exception as e:
+            raise RuntimeError(
+                f"Error al leer el objeto S3. Bucket: {bucket_name}, Key: {object_key}. Detalles: {str(e)}"
+            ) from e
 
-            print(f"Procesando bucket: {bucket_name}, objeto: {object_key}")
 
-            payload = json.dumps({
-                'bucket_name': bucket_name,
-                'object_key': object_key
-            })
+class MageApiClient:
+    def __init__(self, base_url: str):
+        if not base_url:
+            raise ConfigError("La variable de entorno MAGE_API_URL no está configurada.")
+        
+        self.parsed_url = urlparse(base_url)
+        self.host = self.parsed_url.hostname
+        self.port = self.parsed_url.port or (443 if self.parsed_url.scheme == 'https' else 80)
+        self.path = self.parsed_url.path or '/'
+        self.scheme = self.parsed_url.scheme.lower()
 
-            connection = (
-                http.client.HTTPSConnection(host, port)
-                if parsed_url.scheme == "https"
-                else http.client.HTTPConnection(host, port)
-            )
+    def post_json(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        payload_str = json.dumps(data)
 
-            headers = {'Content-Type': 'application/json'}
+        if self.scheme == "https":
+            connection = http.client.HTTPSConnection(self.host, self.port)
+        else:
+            connection = http.client.HTTPConnection(self.host, self.port)
 
-            connection.request("POST", path, payload, headers)
+        headers = {'Content-Type': 'application/json'}
 
+        try:
+            connection.request("POST", self.path, payload_str, headers)
             response = connection.getresponse()
-            response_body = response.read().decode()
-
-            print(f"Respuesta de la API: {response.status}, {response_body}")
-            responses.append({
-                'bucket_name': bucket_name,
-                'object_key': object_key,
+            response_body = response.read().decode('utf-8')
+            return {
                 'status_code': response.status,
                 'response_body': response_body
-            })
-
+            }
+        except Exception as e:
+            raise RuntimeError(
+                f"Error al realizar la solicitud POST a {self.host}. Detalles: {str(e)}"
+            ) from e
+        finally:
             connection.close()
 
-        except Exception as e:
-            print(f"Error procesando registro: {record}. Error: {str(e)}")
-            responses.append({
-                'bucket_name': bucket_name if 'bucket_name' in locals() else None,
-                'object_key': object_key if 'object_key' in locals() else None,
-                'error': str(e)
-            })
+
+class S3EventProcessor:
+    def __init__(self, s3_reader: S3Reader, mage_api_client: MageApiClient):
+        self.s3_reader = s3_reader
+        self.mage_api_client = mage_api_client
+
+    def process_event_records(self, event_records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        results = []
+
+        for record in event_records:
+            bucket_name = None
+            object_key = None
+
+            try:
+                bucket_name = record['s3']['bucket']['name']
+                object_key = record['s3']['object']['key']
+
+                object_json = self.s3_reader.read_json_object(bucket_name, object_key)
+                
+                api_response = self.mage_api_client.post_json(object_json)
+
+                results.append({
+                    'bucket_name': bucket_name,
+                    'object_key': object_key,
+                    'api_status_code': api_response['status_code'],
+                    'api_response': api_response['response_body']
+                })
+
+            except Exception as e:
+                print(f"Error procesando el registro (bucket: {bucket_name}, key: {object_key}): {str(e)}")
+                results.append({
+                    'bucket_name': bucket_name,
+                    'object_key': object_key,
+                    'error': str(e)
+                })
+        
+        return results
+
+
+def lambda_handler(event, context):
+    mage_api_url = os.environ.get("MAGE_API_URL")
+    if not mage_api_url:
+        raise ValueError("La variable de entorno MAGE_API_URL no está configurada.")
+
+    s3_reader = S3Reader()
+    mage_api_client = MageApiClient(mage_api_url)
+    event_processor = S3EventProcessor(s3_reader, mage_api_client)
+
+    print("Evento recibido:", json.dumps(event, indent=2))
+
+    records = event.get('Records', [])
+    responses = event_processor.process_event_records(records)
 
     return {
         'statusCode': 200,
