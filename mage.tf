@@ -49,10 +49,14 @@ resource "aws_security_group" "mage_sg" {
 
 resource "aws_instance" "mage_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f"
-  instance_type          = "t2.micro"
+  instance_type          = "t3.medium"
   subnet_id              = aws_subnet.public.id
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.mage_sg.id]
+
+  iam_instance_profile = "myS3Role"
+
+  depends_on = [ aws_instance.mongodb_instance, aws_instance.neo4j_instance ]
 
   user_data = <<-EOF
                 #!/bin/bash
@@ -74,12 +78,13 @@ resource "aws_instance" "mage_instance" {
                 # Instalamos Mage AI y dependencias adicionales
                 pip install --upgrade pip
                 pip install mage-ai
-                pip install neo4j pymongo
+                pip install neo4j pymongo boto3
 
                 MONGO_USER=${var.mongodb_username}
                 MONGO_PASSWD=${var.mongodb-passwd}
+                MONGO_HOST=${aws_eip.mongodb.public_ip}
                 NEO_PASSWD=${var.neo4j-passwd}
-                BUCKET_NAME=${var.bucket_name}
+                NEO_HOST=${aws_eip.neo4j.public_ip}
 
                 # Clonamos el repositorio de Mage AI
                 cd /home/ec2-user
