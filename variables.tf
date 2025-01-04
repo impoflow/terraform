@@ -10,17 +10,7 @@ variable "region" {
 
 variable "bucket_name" {
   description = "bucket name"
-  default = "neo4j-tscd-120-10-2024"
-}
-
-variable "mage_project_name" {
-  description = "Nombre del proyecto Mage"
-  default = "data-orchestator"
-}
-
-variable "neo4j_username" {
-  description = "Nombre de usuario para Neo4j"
-  default = "user"
+  default = "neo4j-tscd-310-10-2024"
 }
 
 variable "neo4j-passwd" {

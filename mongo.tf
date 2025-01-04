@@ -78,8 +78,8 @@ resource "aws_instance" "mongodb_instance" {
               mongosh <<EOM
               use admin
               db.createUser({
-                user: "admin",
-                pwd: "securePassword123",
+                user: "${var.mongodb_username}",
+                pwd: "${var.mongodb-passwd}",
                 roles: [{ role: "userAdminAnyDatabase", db: "admin" }]
               });
               EOM

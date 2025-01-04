@@ -76,6 +76,11 @@ resource "aws_instance" "mage_instance" {
                 pip install mage-ai
                 pip install neo4j pymongo
 
+                MONGO_USER=${var.mongodb_username}
+                MONGO_PASSWD=${var.mongodb-passwd}
+                NEO_PASSWD=${var.neo4j-passwd}
+                BUCKET_NAME=${var.bucket_name}
+
                 # Clonamos el repositorio de Mage AI
                 cd /home/ec2-user
                 if [ ! -d "mage" ]; then

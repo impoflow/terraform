@@ -51,31 +51,36 @@ resource "aws_instance" "neo4j_instance" {
 
   iam_instance_profile = "myS3Role"
 
-  user_data = <<-EOF
+user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
               sudo yum install java-1.8.0-openjdk-devel -y
               sudo yum install aws-cli -y
 
               # Añadir el repositorio Neo4j
-
               sudo rpm --import https://debian.neo4j.com/neotechnology.gpg.key
               sudo sh -c 'echo -e "[neo4j]\\nname=Neo4j\\nbaseurl=http://yum.neo4j.com/stable\\nenabled=1\\ngpgcheck=1" > /etc/yum.repos.d/neo4j.repo'
 
               # Instalar Neo4j
-              
               sudo yum install neo4j -y
 
-              # Descargar el archivo de configuración de neo4j
-              aws s3 cp s3://${var.bucket_name}/neo4j.conf /etc/neo4j/neo4j.conf            
+              # Descargar y reemplazar el archivo neo4j.conf
+              aws s3 cp s3://${var.bucket_name}/neo4j.conf /etc/neo4j/neo4j.conf
 
               # Instalar Neo4j
               INSTANCE_PUBLIC_IP=${aws_eip.neo4j.public_ip}
               sudo sed -i "s/{public_ip}/$INSTANCE_PUBLIC_IP/g" /etc/neo4j/neo4j.conf
 
+              # Iniciar Neo4j con autenticación deshabilitada
               sudo systemctl start neo4j
-              sudo systemctl enable neo4j
-              EOF
+              time sudo systemctl enable neo4j
+
+              # Esperar la inicialización
+              sleep 30
+
+              echo "ALTER CURRENT USER SET PASSWORD FROM 'neo4j' TO '${var.neo4j-passwd}';" \
+              | cypher-shell -u neo4j -p neo4j --database=system
+            EOF
 
   tags = {
     Name = "Neo4j-Instance"
