@@ -18,7 +18,8 @@ resource "aws_lambda_function" "s3_trigger_lambda" {
 
   environment {
     variables = {
-      MAGE_API_URL = "http://${aws_eip.mage.public_ip}:6789/api/pipeline_schedules/1/pipeline_runs/test"
+      LOG_LEVEL = "INFO",
+      MAGE_API_URL = "http://${aws_eip.mage.public_ip}:6789/api/pipeline_schedules/1/pipeline_runs/s3PutTrigger"
     }
   }
 }
@@ -38,7 +39,6 @@ resource "aws_s3_bucket_notification" "s3_trigger" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.s3_trigger_lambda.arn
     events              = ["s3:ObjectCreated:Put"]
-
     filter_suffix = ".info"
   }
 

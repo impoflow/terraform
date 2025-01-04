@@ -10,7 +10,7 @@ variable "region" {
 
 variable "bucket_name" {
   description = "bucket name"
-  default = "neo4j-tscd-110-10-2024"
+  default = "neo4j-tscd-120-10-2024"
 }
 
 variable "mage_project_name" {

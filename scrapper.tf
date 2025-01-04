@@ -1,8 +1,6 @@
-# Crear una Elastic IP
 resource "aws_eip" "scrapper" {
 }
 
-# Grupo de seguridad de la instancia
 resource "aws_security_group" "scrapper_sg" {
   name        = "scrapper-security-group"
   description = "Grupo de seguridad para el Scrapper"
@@ -23,7 +21,6 @@ resource "aws_security_group" "scrapper_sg" {
   }
 }
 
-# Crear una instancia EC2
 resource "aws_instance" "scrapper_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f" # Amazon Linux 2 AMI
   instance_type          = "t2.micro"
@@ -33,7 +30,6 @@ resource "aws_instance" "scrapper_instance" {
 
   iam_instance_profile = "myS3Role"
 
-  # Configuración
   user_data = <<-EOF
               #!/bin/bash
               set -e  # Exit on any error
@@ -72,13 +68,11 @@ resource "aws_instance" "scrapper_instance" {
   }
 }
 
-# Asociar la Elastic IP a la instancia EC2
 resource "aws_eip_association" "scrapper_eip_association" {
   instance_id   = aws_instance.scrapper_instance.id
   allocation_id = aws_eip.scrapper.id
 }
 
-# Mostrar la IP pública
 output "scrapper_instance_public_ip" {
   description = "La IP pública de la instancia Scrapper"
   value       = "Scrapper: ${aws_eip.scrapper.public_ip}"
