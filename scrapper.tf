@@ -30,6 +30,8 @@ resource "aws_instance" "scrapper_instance" {
 
   iam_instance_profile = "myS3Role"
 
+  depends_on = [ aws_instance.mage_instance ]
+
   user_data = <<-EOF
               #!/bin/bash
               set -e  # Exit on any error
@@ -60,7 +62,11 @@ resource "aws_instance" "scrapper_instance" {
               sudo docker pull ${var.docker-username}/github-scrapper
 
               # Run the container
-              sudo  docker run -e "BUCKET_NAME=${var.bucket_name}" -e "REGION=us-east-1" ${var.docker-username}/github-scrapper
+              cat <<EOT >> /home/ec2-user/run.sh
+              docker run -e "BUCKET_NAME=${var.bucket_name}" -e "REGION=us-east-1" ${var.docker-username}/github-scrapper
+              EOT
+
+              chmod +x /home/ec2-user/run.sh
               EOF
 
   tags = {

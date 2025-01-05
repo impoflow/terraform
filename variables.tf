@@ -10,12 +10,12 @@ variable "region" {
 
 variable "bucket_name" {
   description = "bucket name"
-  default = "neo4j-tscd-410-10-2024"
+  default = "neo4j-tscd-510-10-2024"
 }
 
 variable "neo4j_username" {
   description = "Nombre de usuario para MongoDB"
-  default = "Neo4j"
+  default = "neo4j"
 }
 
 variable "neo4j-passwd" {
