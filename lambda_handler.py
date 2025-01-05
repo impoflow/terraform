@@ -19,7 +19,9 @@ class S3Reader:
         try:
             s3_object = self.s3.get_object(Bucket=bucket_name, Key=object_key)
             object_content = s3_object['Body'].read().decode('utf-8')
-            return json.loads(object_content)
+            data = json.loads(object_content)
+            data['bucket_name'] = bucket_name
+            return data
         except Exception as e:
             raise RuntimeError(
                 f"Error al leer el objeto S3. Bucket: {bucket_name}, Key: {object_key}. Detalles: {str(e)}"

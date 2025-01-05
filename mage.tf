@@ -49,7 +49,7 @@ resource "aws_security_group" "mage_sg" {
 
 resource "aws_instance" "mage_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f"
-  instance_type          = "t3.medium"
+  instance_type          = "t2.medium"
   subnet_id              = aws_subnet.public.id
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.mage_sg.id]
@@ -80,22 +80,24 @@ resource "aws_instance" "mage_instance" {
                 pip install mage-ai
                 pip install neo4j pymongo boto3
 
-                MONGO_USER=${var.mongodb_username}
-                MONGO_PASSWD=${var.mongodb-passwd}
-                MONGO_HOST=${aws_eip.mongodb.public_ip}
-                NEO_PASSWD=${var.neo4j-passwd}
-                NEO_HOST=${aws_eip.neo4j.public_ip}
+                cat <<EOT >> /home/ec2-user/mage_env.sh
+                export MONGO_USER=${var.mongodb_username}
+                export MONGO_PASSWD=${var.mongodb-passwd}
+                export MONGO_HOST=${aws_eip.mongodb.public_ip}
+                export NEO_USER=${var.neo4j_username}
+                export NEO_PASSWD=${var.neo4j-passwd}
+                export NEO_HOST=${aws_eip.neo4j.public_ip}
+                EOT
+
+                chmod +x /home/ec2-user/mage_env.sh
+                source /home/ec2-user/mage_env.sh
 
                 # Clonamos el repositorio de Mage AI
                 cd /home/ec2-user
                 if [ ! -d "mage" ]; then
                     git clone https://${var.github_token}@github.com/impoflow/mage.git
                 fi
-
-                # Navegamos al proyecto clonado
-                cd /home/ec2-user/mage
-
-                # Iniciamos Mage AI desde el proyecto clonado
+                
                 nohup mage start "/home/ec2-user/mage" --host 0.0.0.0 --port 6789 &
                 EOF
 
