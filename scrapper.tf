@@ -49,9 +49,6 @@ resource "aws_instance" "scrapper_instance" {
               # Add the current user to the Docker group to avoid permission issues
               sudo usermod -aG docker ec2-user
 
-              # Create directory for data storage
-              sudo mkdir -p /datalake
-
               # Ensure the Docker daemon is ready
               sleep 10  # Give Docker time to initialize
 
