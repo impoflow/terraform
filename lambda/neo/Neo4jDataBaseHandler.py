@@ -48,3 +48,31 @@ class Neo4jQueryHandler:
         with self.driver.session() as session:
             result = session.run(query, user1=user1)
             return [record["collaborator_name"] for record in result]
+        
+    def get_project_classes(self, project):
+        query = """
+        MATCH (p:Project {name: $project})<-[:MAIN]-(main_class:Class)
+        MATCH path = (main_class)-[:IMPORTS|IMPLEMENTS*]->(c:Class)
+        RETURN DISTINCT c.name AS class_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query, project=project)
+            return [record["class_name"] for record in result]
+
+    def get_project_collaborators(self, project):
+        query = """
+        MATCH (p:Project {name: $project})<-[:COLLABORATES_IN]-(u:User)
+        RETURN DISTINCT u.name AS collaborator_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query, project=project)
+            return [record["collaborator_name"] for record in result]
+        
+    def get_project_owner(self, project):
+        query = """
+        MATCH (u:User)-[:OWNS]->(p:Project {name: $project})
+        RETURN u.name AS owner_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query, project=project)
+            return [record["owner_name"] for record in result]
