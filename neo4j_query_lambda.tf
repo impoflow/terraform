@@ -1,9 +1,9 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current_neo4j" {}
 
 data "archive_file" "lambda_neo4j_query" {
   type        = "zip"
-  source_file = "lambda/neo_lambda_handler.py"
-  output_path = "lambda/neo_lambda_function.zip"
+  source_dir = "lambda/neo"
+  output_path = "lambda/neo/neo_lambda_function.zip"
 }
 
 resource "aws_lambda_function" "neo4j_query_lambda" {
@@ -14,7 +14,7 @@ resource "aws_lambda_function" "neo4j_query_lambda" {
   filename         = data.archive_file.lambda_neo4j_query.output_path
   source_code_hash = data.archive_file.lambda_neo4j_query.output_base64sha256
 
-  depends_on = [ null_resource.neo4j_instance ]
+  depends_on = [ aws_instance.neo4j_instance ]
 
   environment {
     variables = {
