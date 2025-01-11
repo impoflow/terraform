@@ -1,4 +1,4 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current_zip_val" {}
 
 data "archive_file" "lambda_zip_validator" {
   type        = "zip"
