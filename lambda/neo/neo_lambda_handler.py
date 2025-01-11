@@ -18,7 +18,7 @@ def lambda_handler(event, context):
 
         owned_projects = query_handler.get_owned_projects(user_name)
         collaborating_projects = query_handler.get_collaborating_projects(user_name)
-        common_collaborators = query_handler.get_common_collaborators("Alice")
+        common_collaborators = query_handler.get_common_collaborators(user_name)
 
         return {
             "statusCode": 200,
