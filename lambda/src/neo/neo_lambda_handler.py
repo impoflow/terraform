@@ -4,7 +4,7 @@ import os
 def lambda_handler(event, context):
     neo4j_uri = os.environ.get("NEO4J_URI")
     neo4j_user = os.environ.get("NEO4J_USER")
-    neo4j_pwd = os.environ.get("NEO4J_PASSWD")
+    neo4j_pwd = os.environ.get("NEO4J_PASSWORD")
 
     conn = Neo4jConnection(neo4j_uri, neo4j_user, neo4j_pwd)
 
