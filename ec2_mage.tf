@@ -54,7 +54,7 @@ resource "aws_instance" "mage_instance" {
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.mage_sg.id]
 
-  iam_instance_profile = "myS3Role"
+  iam_instance_profile = "EMR_EC2_DefaultRole"
 
   depends_on = [ aws_instance.mongodb_instance, aws_instance.neo4j_instance ]
 

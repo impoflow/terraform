@@ -19,11 +19,11 @@ resource "null_resource" "create_bucket_and_upload" {
 
       # Subir el archivo neo4j.conf al bucket
       echo "Subiendo neo4j.conf al bucket ${var.bucket_name}..."
-      aws s3 cp ./neo4j.conf s3://${var.bucket_name}/neo4j.conf
+      aws s3 cp ./conf/neo4j.conf s3://${var.bucket_name}/neo4j.conf
 
       # Subir el archivo mongod.conf al bucket
       echo "Subiendo mongo.conf al bucket ${var.bucket_name}..."
-      aws s3 cp ./mongod.conf s3://${var.bucket_name}/mongod.conf
+      aws s3 cp ./conf/mongod.conf s3://${var.bucket_name}/mongod.conf
     EOT
   } 
 }

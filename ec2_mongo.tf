@@ -42,7 +42,7 @@ resource "aws_instance" "mongodb_instance" {
   vpc_security_group_ids = [aws_security_group.mongodb_sg.id]
   depends_on             = [null_resource.create_bucket_and_upload]
 
-  iam_instance_profile = "myS3Role"
+  iam_instance_profile = "EMR_EC2_DefaultRole"
 
   user_data = <<-EOF
               #!/bin/bash
