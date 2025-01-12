@@ -2,8 +2,8 @@ data "aws_caller_identity" "current_neo4j" {}
 
 data "archive_file" "lambda_neo4j_query" {
   type        = "zip"
-  source_dir = "lambda/lambda/neo"
-  output_path = "lambda/lambda/neo/neo_lambda_function.zip"
+  source_dir = "lambda/src/neo"
+  output_path = "lambda/src/neo/neo_lambda_function.zip"
 }
 
 resource "aws_lambda_function" "neo4j_query_lambda" {

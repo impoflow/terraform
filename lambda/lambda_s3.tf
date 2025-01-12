@@ -2,8 +2,8 @@ data "aws_caller_identity" "current" {}
 
 data "archive_file" "lambda_s3" {
   type        = "zip"
-  source_file = "lambda/lambda/s3/s3_lambda_handler.py"
-  output_path = "lambda/lambda/s3/s3_lambda_function.zip"
+  source_file = "lambda/src/s3/s3_lambda_handler.py"
+  output_path = "lambda/src/s3/s3_lambda_function.zip"
 }
 
 resource "aws_lambda_function" "s3_trigger_lambda" {
