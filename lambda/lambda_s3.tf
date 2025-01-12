@@ -8,7 +8,7 @@ data "archive_file" "lambda_s3" {
 
 resource "aws_lambda_function" "s3_trigger_lambda" {
   function_name    = "s3_put_trigger_function"
-  role             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lambda-run-role"
+  role             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
   runtime          = "python3.11"
   handler          = "s3_lambda_handler.lambda_handler" # Nombre del archivo y la función a ejecutar
   filename         = data.archive_file.lambda_s3.output_path

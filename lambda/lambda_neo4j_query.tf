@@ -8,7 +8,7 @@ data "archive_file" "lambda_neo4j_query" {
 
 resource "aws_lambda_function" "neo4j_query_lambda" {
   function_name    = "neo4j_query_handler_function"
-  role             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lambda-run-role"
+  role             = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
   runtime          = "python3.11"
   handler          = "neo_lambda_handler.lambda_handler" # Nombre del archivo y la función a ejecutar
   filename         = data.archive_file.lambda_neo4j_query.output_path
