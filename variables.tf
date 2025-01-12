@@ -1,4 +1,4 @@
-variable "ssh_key_name" {
+variable "ssh-key-name" {
   description = "Nombre de la clave SSH para acceder a la instancia"
   default = "~/.ssh/my-ssh-key.pub"
 }
@@ -8,12 +8,12 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "bucket_name" {
+variable "bucket-name" {
   description = "bucket name"
   default = "neo4j-tscd-510-10-2024"
 }
 
-variable "neo4j_username" {
+variable "neo4j-username" {
   description = "Nombre de usuario para MongoDB"
   default = "neo4j"
 }
@@ -24,7 +24,7 @@ variable "neo4j-passwd" {
   sensitive = true
 }
 
-variable "mongodb_username" {
+variable "mongodb-username" {
   description = "Nombre de usuario para MongoDB"
   default = "user"
 }
@@ -46,7 +46,7 @@ variable "docker-passwd" {
   sensitive = true
 }
 
-variable "github_token" {
+variable "github-token" {
   description = "Token for GitHub"
   default = "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"
 }

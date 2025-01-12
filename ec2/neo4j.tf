@@ -4,7 +4,7 @@ resource "aws_eip" "neo4j" {
 resource "aws_security_group" "neo4j_sg" {
   name        = "neo4j-security-group"
   description = "Grupo de seguridad para Neo4j"
-  vpc_id = aws_vpc.main.id
+  vpc_id = var.vpc-id
   
   ingress {
     from_port   = 22    # SSH
@@ -45,9 +45,8 @@ resource "aws_security_group" "neo4j_sg" {
 resource "aws_instance" "neo4j_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f" # Amazon Linux 2 AMI (actualiza si es necesario)
   instance_type         = "t2.micro"
-  subnet_id             = aws_subnet.public.id
+  subnet_id             = var.subnet-id
   vpc_security_group_ids = [aws_security_group.neo4j_sg.id]
-  depends_on = [ null_resource.create_bucket_and_upload ]
 
   iam_instance_profile = "EMR_EC2_DefaultRole"
 
@@ -65,7 +64,7 @@ user_data = <<-EOF
               sudo yum install neo4j -y
 
               # Descargar y reemplazar el archivo neo4j.conf
-              aws s3 cp s3://${var.bucket_name}/neo4j.conf /etc/neo4j/neo4j.conf
+              aws s3 cp s3://${var.bucket-name}/neo4j.conf /etc/neo4j/neo4j.conf
 
               # Instalar Neo4j
               INSTANCE_PUBLIC_IP=${aws_eip.neo4j.public_ip}
@@ -90,9 +89,4 @@ user_data = <<-EOF
 resource "aws_eip_association" "neo4j_eip_association" {
   instance_id   = aws_instance.neo4j_instance.id
   allocation_id = aws_eip.neo4j.id
-}
-
-output "neo4j_instance_public_ip" {
-  description = "La IP pública de la instancia Neo4j"
-  value       = "Neo4j: http://${aws_eip.neo4j.public_ip}:7474"
 }

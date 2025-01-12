@@ -3,13 +3,13 @@ resource "aws_eip" "mage" {
 
 resource "aws_key_pair" "ssh_key" {
   key_name   = "my-key-pair"
-  public_key = file(var.ssh_key_name)
+  public_key = file(var.key-name)
 }
 
 resource "aws_security_group" "mage_sg" {
   name        = "mage-security-group"
   description = "Grupo de seguridad para Mage"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc-id
   
   ingress {
     from_port   = 22    # SSH
@@ -50,7 +50,7 @@ resource "aws_security_group" "mage_sg" {
 resource "aws_instance" "mage_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f"
   instance_type          = "t2.medium"
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = var.subnet-id
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.mage_sg.id]
 
@@ -81,10 +81,10 @@ resource "aws_instance" "mage_instance" {
                 pip install neo4j pymongo boto3
 
                 cat <<EOT >> /home/ec2-user/mage_env.sh
-                export MONGO_USER=${var.mongodb_username}
+                export MONGO_USER=${var.mongodb-username}
                 export MONGO_PASSWD=${var.mongodb-passwd}
                 export MONGO_HOST=${aws_eip.mongodb.public_ip}
-                export NEO_USER=${var.neo4j_username}
+                export NEO_USER=${var.neo4j-username}
                 export NEO_PASSWD=${var.neo4j-passwd}
                 export NEO_HOST=${aws_eip.neo4j.public_ip}
                 EOT
@@ -95,7 +95,7 @@ resource "aws_instance" "mage_instance" {
                 # Clonamos el repositorio de Mage AI
                 cd /home/ec2-user
                 if [ ! -d "mage" ]; then
-                    git clone https://${var.github_token}@github.com/impoflow/mage.git
+                    git clone https://${var.github-token}@github.com/impoflow/mage.git
                 fi
                 
                 nohup mage start "/home/ec2-user/mage" --host 0.0.0.0 --port 6789 &
@@ -109,9 +109,4 @@ resource "aws_instance" "mage_instance" {
 resource "aws_eip_association" "mage_eip_association" {
   instance_id   = aws_instance.mage_instance.id
   allocation_id = aws_eip.mage.id
-}
-
-output "mage_instance_public_ip" {
-  description = "La IP pública de la instancia Mage"
-  value       = "Mage: http://${aws_eip.mage.public_ip}:6789"
 }

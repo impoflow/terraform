@@ -2,8 +2,8 @@ data "aws_caller_identity" "current" {}
 
 data "archive_file" "lambda_s3" {
   type        = "zip"
-  source_file = "lambda/s3/s3_lambda_handler.py"
-  output_path = "lambda/s3/s3_lambda_function.zip"
+  source_file = "lambda/lambda/s3/s3_lambda_handler.py"
+  output_path = "lambda/lambda/s3/s3_lambda_function.zip"
 }
 
 resource "aws_lambda_function" "s3_trigger_lambda" {
@@ -14,12 +14,10 @@ resource "aws_lambda_function" "s3_trigger_lambda" {
   filename         = data.archive_file.lambda_s3.output_path
   source_code_hash = data.archive_file.lambda_s3.output_base64sha256
 
-  depends_on = [ null_resource.create_bucket_and_upload, aws_instance.mage_instance ]
-
   environment {
     variables = {
       LOG_LEVEL = "INFO",
-      MAGE_API_URL = "http://${aws_eip.mage.public_ip}:6789/api/pipeline_schedules/1/pipeline_runs/s3PutTrigger"
+      MAGE_API_URL = "http://${var.mage-ip}:6789/api/pipeline_schedules/1/pipeline_runs/s3PutTrigger"
     }
   }
 }
@@ -29,12 +27,11 @@ resource "aws_lambda_permission" "allow_s3_to_invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.s3_trigger_lambda.function_name
   principal     = "s3.amazonaws.com"
-  depends_on    = [null_resource.create_bucket_and_upload]
-  source_arn    = "arn:aws:s3:::${var.bucket_name}"
+  source_arn    = "arn:aws:s3:::${var.bucket-name}"
 }
 
 resource "aws_s3_bucket_notification" "s3_trigger" {
-  bucket = var.bucket_name
+  bucket = var.bucket-name
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.s3_trigger_lambda.arn

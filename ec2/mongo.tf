@@ -4,7 +4,7 @@
   resource "aws_security_group" "mongodb_sg" {
     name        = "mongodb-security-group"
     description = "Grupo de seguridad para MongoDB"
-    vpc_id      = aws_vpc.main.id
+    vpc_id      = var.vpc-id
 
     ingress {
       from_port   = 22
@@ -38,9 +38,8 @@
 resource "aws_instance" "mongodb_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f"
   instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = var.subnet-id
   vpc_security_group_ids = [aws_security_group.mongodb_sg.id]
-  depends_on             = [null_resource.create_bucket_and_upload]
 
   iam_instance_profile = "EMR_EC2_DefaultRole"
 
@@ -65,7 +64,7 @@ resource "aws_instance" "mongodb_instance" {
               sudo yum install -y mongodb-org
 
               # Descargar el archivo de configuración de mongod
-              aws s3 cp s3://${var.bucket_name}/mongod.conf /etc/mongod.conf 
+              aws s3 cp s3://${var.bucket-name}/mongod.conf /etc/mongod.conf 
 
               # Iniciar y habilitar MongoDB
               sudo systemctl start mongod
@@ -78,7 +77,7 @@ resource "aws_instance" "mongodb_instance" {
               mongosh <<EOM
               use admin
               db.createUser({
-                user: "${var.mongodb_username}",
+                user: "${var.mongodb-username}",
                 pwd: "${var.mongodb-passwd}",
                 roles: [{ role: "userAdminAnyDatabase", db: "admin" }]
               });
@@ -97,9 +96,4 @@ resource "aws_instance" "mongodb_instance" {
   resource "aws_eip_association" "mongodb_eip_association" {
     instance_id   = aws_instance.mongodb_instance.id
     allocation_id = aws_eip.mongodb.id
-  }
-
-  output "mongodb_instance_public_ip" {
-    description = "La IP pública de la instancia MongoDB"
-    value       = "MongoDB: mongodb://${aws_eip.mongodb.public_ip}:27017"
   }
