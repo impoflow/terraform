@@ -12,28 +12,64 @@ def lambda_handler(event, context):
         conn.connect()
         query_handler = Neo4jQueryHandler(conn)
 
-        user_name = event.get("user_name")
-        if user_name is None:
-            raise ValueError("El evento no contiene un campo 'user_name'.")
-
-        owned_projects = query_handler.get_owned_projects(user_name)
-        collaborating_projects = query_handler.get_collaborating_projects(user_name)
-        common_collaborators = query_handler.get_common_collaborators(user_name)
-
-        return {
-            "statusCode": 200,
-            "body": {
-                "owned_projects": owned_projects,
-                "collaborating_projects": collaborating_projects,
-                "common_collaborators": common_collaborators
-            }
+        route = event.get("route", "")
+        handlers = {
+            "/users": lambda: query_handler.get_users(),
+            "/projects": lambda: query_handler.get_projects()
         }
+
+        if route.startswith("/user/"):
+            return handle_user_routes(route, query_handler)
+
+        if route.startswith("/project/"):
+            return handle_project_routes(route, query_handler)
+
+        if route in handlers:
+            response = handlers[route]()
+            return {"statusCode": 200, "body": response}
+
+        return {"statusCode": 404, "body": "Route not found"}
 
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": str(e)
-        }
+        return {"statusCode": 500, "body": str(e)}
 
     finally:
         conn.close()
+
+
+def handle_user_routes(route, query_handler):
+    """Manejo de rutas relacionadas con usuarios."""
+    user_name = route.split("/")[2]
+
+    if route.endswith("/projects"):
+        response = query_handler.get_owned_projects(user_name)
+    elif route.endswith("/collaborations"):
+        response = query_handler.get_collaborating_projects(user_name)
+    elif route.endswith("/collaborators"):
+        response = query_handler.get_common_collaborators(user_name)
+    else:
+        response = {
+            "owned_projects": query_handler.get_owned_projects(user_name),
+            "collaborating_projects": query_handler.get_collaborating_projects(user_name),
+            "common_collaborators": query_handler.get_common_collaborators(user_name)
+        }
+    return {"statusCode": 200, "body": response}
+
+
+def handle_project_routes(route, query_handler):
+    """Manejo de rutas relacionadas con proyectos."""
+    project_id = route.split("/")[2]
+
+    if route.endswith("/owner"):
+        response = query_handler.get_project_owner(project_id)
+    elif route.endswith("/classes"):
+        response = query_handler.get_project_classes(project_id)
+    elif route.endswith("/collaborators"):
+        response = query_handler.get_project_collaborators(project_id)
+    else:
+        response = {
+            "owner": query_handler.get_project_owner(project_id),
+            "classes": query_handler.get_project_classes(project_id),
+            "collaborators": query_handler.get_project_collaborators(project_id)
+        }
+    return {"statusCode": 200, "body": response}

@@ -10,7 +10,7 @@ variable "region" {
 
 variable "bucket-name" {
   description = "bucket name"
-  default = "neo4j-tscd-510-10-2024"
+  default = "neo4j-tscd-310-10-2024"
 }
 
 variable "neo4j-username" {
@@ -46,7 +46,12 @@ variable "docker-passwd" {
   sensitive = true
 }
 
-variable "github-token" {
+variable "github-mage-token" {
   description = "Token for GitHub"
   default = "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"
+}
+
+variable "github-webservice-token" {
+  description = "Token for GitHub"
+  default = "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"
 }

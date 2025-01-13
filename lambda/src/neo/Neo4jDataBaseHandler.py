@@ -21,6 +21,15 @@ class Neo4jQueryHandler:
     def close(self):
         self.driver.close()
 
+    def get_users(self):
+        query = """
+        MATCH (u:User)
+        RETURN u.name AS user_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query)
+            return [record["user_name"] for record in result]
+
     def get_owned_projects(self, user_name):
         query = """
         MATCH (u:User {name: $user_name})-[:OWNS]->(p:Project)
@@ -48,6 +57,24 @@ class Neo4jQueryHandler:
         with self.driver.session() as session:
             result = session.run(query, user1=user1)
             return [record["collaborator_name"] for record in result]
+    
+    def get_projects(self):
+        query = """
+        MATCH (p:Project)
+        RETURN p.name AS project_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query)
+            return [record["project_name"] for record in result]
+        
+    def get_project_owner(self, project):
+        query = """
+        MATCH (u:User)-[:OWNS]->(p:Project {name: $project})
+        RETURN u.name AS owner_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query, project=project)
+            return [record["owner_name"] for record in result]
         
     def get_project_classes(self, project):
         query = """
@@ -67,12 +94,3 @@ class Neo4jQueryHandler:
         with self.driver.session() as session:
             result = session.run(query, project=project)
             return [record["collaborator_name"] for record in result]
-        
-    def get_project_owner(self, project):
-        query = """
-        MATCH (u:User)-[:OWNS]->(p:Project {name: $project})
-        RETURN u.name AS owner_name
-        """
-        with self.driver.session() as session:
-            result = session.run(query, project=project)
-            return [record["owner_name"] for record in result]

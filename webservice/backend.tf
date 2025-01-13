@@ -74,7 +74,7 @@ resource "aws_instance" "backend_instance" {
                 # Iniciamos el servidor
                 sudo su
                 source ../../myenv/bin/activate
-                sudo gunicorn -w 4 -b 0.0.0.0:80 api_handler:app
+                sudo /home/ec2-user/myenv/bin/gunicorn -w 4 -b 0.0.0.0:80 api_handler:app
                 EOF
 
   tags = {
