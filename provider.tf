@@ -37,3 +37,15 @@ module "aws-lambda" {
   bucket-name = var.bucket-name
   neo4j-passwd    = var.neo4j-passwd
 } 
+
+module "aws-webservice" {
+  source = "./webservice"
+  vpc-id = module.aws-network.vpc-id
+  subnet-id = module.aws-network.subnet-id
+
+  key-name = var.ssh-key-name
+  github-token = var.github-token
+
+  s3-function-arn = module.aws-lambda.s3-function-arn
+  neo4j-function-arn = module.aws-lambda.neo4j-function-arn
+}
