@@ -45,47 +45,52 @@ resource "aws_instance" "mongodb_instance" {
 
   user_data = <<-EOF
               #!/bin/bash
+
+              # Actualizar el sistema
               sudo yum update -y
+
+              # Instalar Amazon Linux Extras y Java
               sudo yum install -y amazon-linux-extras
               sudo amazon-linux-extras enable corretto8
               sudo yum install -y java-1.8.0-openjdk-devel
 
-              # Instalar MongoDB
-              sudo tee /etc/yum.repos.d/mongodb-org-8.0.repo <<EOL
-              [mongodb-org-8.0]
-              name=MongoDB Repository
-              baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/8.0/x86_64/
-              gpgcheck=1
-              enabled=1
-              gpgkey=https://pgp.mongodb.com/server-8.0.asc
-              EOL
+              # Instalar Docker
+              sudo amazon-linux-extras enable docker
+              sudo yum install -y docker
+              sudo service docker start
+              sudo usermod -a -G docker ec2-user
 
-              sudo yum install -y mongodb-mongosh-shared-openssl3
-              sudo yum install -y mongodb-org
+              # Instalar AWS CLI (si no está instalado)
+              sudo yum install -y aws-cli
 
-              # Descargar el archivo de configuración de mongod
-              aws s3 cp s3://${var.bucket-name}/mongod.conf /etc/mongod.conf 
+              cd /home/ec2-user
 
-              # Iniciar y habilitar MongoDB
-              sudo systemctl start mongod
-              sudo systemctl enable mongod
+              # Descargar el archivo de configuración de mongod desde S3
+              sudo mkdir -p mongod
+              sudo mkdir -p mongod/log
+              sudo mkdir -p mongod/data
 
-              # Esperar a que MongoDB se inicie
-              sleep 20
+              aws s3 cp s3://${var.bucket-name}/mongod.conf /home/ec2-user/mongod/mongod.conf
 
-              # Crear usuario administrador en MongoDB
-              mongosh <<EOM
-              use admin
-              db.createUser({
-                user: "${var.mongodb-username}",
-                pwd: "${var.mongodb-passwd}",
-                roles: [{ role: "userAdminAnyDatabase", db: "admin" }]
-              });
-              EOM
+              # Asegurar permisos para el archivo de configuración
+              sudo chown -R ec2-user:ec2-user /home/ec2-user/mongod/data /home/ec2-user/mongod/log
+              sudo chmod 644 /home/ec2-user/mongod/mongod.conf
 
-              # Reiniciar MongoDB para aplicar configuración de seguridad
-              sudo systemctl restart mongod
+              # Ejecutar MongoDB con Docker
+              docker run -d \
+                -p 27017:27017 \
+                --name mongodb \
+                -v /home/ec2-user/mongod/data:/data/db \
+                -v /home/ec2-user/mongod/log:/var/log/mongodb \
+                -v /home/ec2-user/mongod/mongod.conf:/etc/mongod.conf:ro \
+                -e MONGO_INITDB_ROOT_USERNAME=${var.mongodb-username} \
+                -e MONGO_INITDB_ROOT_PASSWORD=${var.mongodb-passwd} \
+                mongo:latest --config /etc/mongod.conf --auth
+              
+              # Verificar estado de MongoDB
+              docker ps > /home/ec2-user/mongo_status.log 2>&1
               EOF
+
 
   tags = {
     Name = "MongoDB-Instance"

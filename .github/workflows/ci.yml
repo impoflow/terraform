@@ -44,7 +44,6 @@ jobs:
       - name: Terraform Plan
         run: tflocal plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
 
-
   aws-deployment-test:
     runs-on: ubuntu-latest
 

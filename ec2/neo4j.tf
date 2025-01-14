@@ -52,33 +52,39 @@ resource "aws_instance" "neo4j_instance" {
 
 user_data = <<-EOF
               #!/bin/bash
+
+              # Actualizar el sistema
               sudo yum update -y
-              sudo yum install java-1.8.0-openjdk-devel -y
-              sudo yum install aws-cli -y
+              sudo yum install -y amazon-linux-extras
+              sudo amazon-linux-extras enable docker
+              sudo yum install -y docker aws-cli
+              sudo service docker start
+              sudo usermod -a -G docker ec2-user
 
-              # Añadir el repositorio Neo4j
-              sudo rpm --import https://debian.neo4j.com/neotechnology.gpg.key
-              sudo sh -c 'echo -e "[neo4j]\\nname=Neo4j\\nbaseurl=http://yum.neo4j.com/stable\\nenabled=1\\ngpgcheck=1" > /etc/yum.repos.d/neo4j.repo'
+              # Crear directorios para Neo4j
+              mkdir -p /home/ec2-user/neo4j/data
+              mkdir -p /home/ec2-user/neo4j/logs
+              mkdir -p /home/ec2-user/neo4j/conf
 
-              # Instalar Neo4j
-              sudo yum install neo4j -y
+              # Descargar el archivo de configuración neo4j.conf desde S3
+              aws s3 cp s3://${var.bucket-name}/neo4j.conf /home/ec2-user/neo4j/conf/neo4j.conf
 
-              # Descargar y reemplazar el archivo neo4j.conf
-              aws s3 cp s3://${var.bucket-name}/neo4j.conf /etc/neo4j/neo4j.conf
-
-              # Instalar Neo4j
+              # Reemplazar {public_ip} en neo4j.conf con la IP pública de la instancia
               INSTANCE_PUBLIC_IP=${aws_eip.neo4j.public_ip}
-              sudo sed -i "s/{public_ip}/$INSTANCE_PUBLIC_IP/g" /etc/neo4j/neo4j.conf
+              sed -i "s/{public_ip}/$INSTANCE_PUBLIC_IP/g" /home/ec2-user/neo4j/conf/neo4j.conf
 
-              # Iniciar Neo4j con autenticación deshabilitada
-              sudo systemctl start neo4j
-              time sudo systemctl enable neo4j
+              # Ejecutar Neo4j con Docker
+              docker run -d \
+                --name neo4j \
+                -p 7474:7474 -p 7687:7687 \
+                -v /home/ec2-user/neo4j/data:/data \
+                -v /home/ec2-user/neo4j/logs:/logs \
+                -v /home/ec2-user/neo4j/conf:/conf \
+                -e NEO4J_AUTH=neo4j/${var.neo4j-passwd} \
+                neo4j:5.12.0-community
 
-              # Esperar la inicialización
-              sleep 30
-
-              echo "ALTER CURRENT USER SET PASSWORD FROM 'neo4j' TO '${var.neo4j-passwd}';" \
-              | cypher-shell -u neo4j -p neo4j --database=system
+              # Verificar el estado de Neo4j
+              docker ps > /home/ec2-user/neo4j_status.log
             EOF
 
   tags = {
