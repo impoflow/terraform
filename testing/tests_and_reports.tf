@@ -73,8 +73,7 @@ resource "aws_instance" "locust_instance" {
 
               sudo sed -i "s/{BACKEND_IP}/${var.backend-ip}/g" /home/ec2-user/prometheus/prometheus.yml
 
-              # Ejecutar docker-compose
-              cd /home/ec2-user
+              # Ejecutar docker
               docker run -d \
                 --name prometheus \
                 -p 9090:9090 \
@@ -83,14 +82,23 @@ resource "aws_instance" "locust_instance" {
                 prom/prometheus:latest \
                 --config.file=/etc/prometheus/prometheus.yml
 
+              docker network create locust-network
               docker run -d \
-                --name locust \
+                --name locust_master \
+                --network locust-network \
                 -p 8089:8089 \
+                -p 5557:5557 \
+                -p 5558:5558 \
                 -v $(pwd)/locust:/mnt/locust \
                 locustio/locust:latest \
-                -f /mnt/locust/locustfile.py --master --host=http://54.237.61.4:80
+                -f /mnt/locust/locustfile.py --master --host=http://${var.backend-ip}:80
 
-              
+              docker run -d \
+                --name locust_worker \
+                --network locust-network \
+                -v $(pwd)/locust:/mnt/locust \
+                locustio/locust:latest \
+                -f /mnt/locust/locustfile.py --worker --master-host=locust_master
 
               EOF
 
