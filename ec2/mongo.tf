@@ -67,17 +67,19 @@ resource "aws_instance" "mongodb_instance" {
 
               # Descargar el archivo de configuración de mongod desde S3
               sudo mkdir -p mongod
-              sudo mkdir -p mongod/log
+
               sudo mkdir -p mongod/data
+              sudo mkdir -p mongod/log
+              sudo chmod -R 777 /home/ec2-user/mongod/log /home/ec2-user/mongod/data
 
               aws s3 cp s3://${var.bucket-name}/mongod.conf /home/ec2-user/mongod/mongod.conf
 
               # Asegurar permisos para el archivo de configuración
               sudo chown -R ec2-user:ec2-user /home/ec2-user/mongod/data /home/ec2-user/mongod/log
               sudo chmod 644 /home/ec2-user/mongod/mongod.conf
-
+              
               # Ejecutar MongoDB con Docker
-              docker run -d \
+              docker run \
                 -p 27017:27017 \
                 --name mongodb \
                 -v /home/ec2-user/mongod/data:/data/db \

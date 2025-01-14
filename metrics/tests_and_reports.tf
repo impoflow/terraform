@@ -58,20 +58,16 @@ resource "aws_instance" "locust_instance" {
               service docker start
               usermod -a -G docker ec2-user
 
-              # Instalar Docker Compose
-              sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '\"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
-              sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-
               # Crear directorios para los volúmenes
               mkdir -p /home/ec2-user/prometheus
               mkdir -p /home/ec2-user/locust
 
               aws s3 cp s3://${var.bucket-name}/locustfile.py /home/ec2-user/locust/locustfile.py
-              aws s3 cp s3://${var.bucket-name}/docker-compose.yml /home/ec2-user/docker-compose.yml
               aws s3 cp s3://${var.bucket-name}/prometheus.yml /home/ec2-user/prometheus/prometheus.yml
 
               sudo sed -i "s/{BACKEND_IP}/${var.backend-ip}/g" /home/ec2-user/prometheus/prometheus.yml
+
+              sleep 30
 
               # Ejecutar docker
               docker run -d \

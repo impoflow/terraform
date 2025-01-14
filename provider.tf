@@ -50,8 +50,8 @@ module "aws-webservice" {
   neo4j-function-arn = module.aws-lambda.neo4j-function-arn
 }
 
-module "aws-testing" {
-  source = "./testing"
+module "aws-metrics" {
+  source = "./metrics"
   vpc-id = module.aws-network.vpc-id
   subnet-id = module.aws-network.subnet-id
 
