@@ -20,6 +20,13 @@ resource "aws_security_group" "backend_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 9090  # PROMETHEUS
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -56,9 +63,6 @@ resource "aws_instance" "backend_instance" {
 
                 # Instalamos dependencias
                 pip install --upgrade pip
-                pip install boto3
-                pip install flask
-                pip install flask_cors
                 pip install gunicorn
 
                 # Clonamos el repositorio del backend
@@ -74,7 +78,8 @@ resource "aws_instance" "backend_instance" {
                 # Iniciamos el servidor
                 sudo su
                 source ../../myenv/bin/activate
-                sudo /home/ec2-user/myenv/bin/gunicorn -w 4 -b 0.0.0.0:80 api_handler:app
+                pip install -r requirements.txt
+                /home/ec2-user/myenv/bin/gunicorn -w 4 -b 0.0.0.0:80 api_handler:app
                 EOF
 
   tags = {
