@@ -1,6 +1,3 @@
-resource "aws_eip" "scrapper" {
-}
-
 resource "aws_security_group" "scrapper_sg" {
   name        = "scrapper-security-group"
   description = "Grupo de seguridad para el Scrapper"
@@ -69,9 +66,4 @@ resource "aws_instance" "scrapper_instance" {
   tags = {
     Name = "Scrapper-Instance"
   }
-}
-
-resource "aws_eip_association" "scrapper_eip_association" {
-  instance_id   = aws_instance.scrapper_instance.id
-  allocation_id = aws_eip.scrapper.id
 }

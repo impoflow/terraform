@@ -24,6 +24,10 @@ resource "null_resource" "create_bucket_and_upload" {
       # Subir el archivo mongod.conf al bucket
       echo "Subiendo mongo.conf al bucket ${var.bucket-name}..."
       aws s3 cp s3/conf/mongod.conf s3://${var.bucket-name}/mongod.conf
+
+      # Subir el archivo locustfile.py al bucket
+      echo "Subiendo locustfile.py al bucket ${var.bucket-name}..."
+      aws s3 cp s3/test/locustfile.py s3://${var.bucket-name}/locustfile.py
     EOT
   } 
 }

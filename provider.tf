@@ -49,3 +49,13 @@ module "aws-webservice" {
   s3-function-arn = module.aws-lambda.s3-function-arn
   neo4j-function-arn = module.aws-lambda.neo4j-function-arn
 }
+
+module "aws-testing" {
+  source = "./testing"
+  vpc-id = module.aws-network.vpc-id
+  subnet-id = module.aws-network.subnet-id
+
+  key-name = var.ssh-key-name
+  bucket-name = var.bucket-name
+  backend-ip = module.aws-webservice.backend-instance-public-ip
+}
