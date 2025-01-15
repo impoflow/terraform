@@ -76,7 +76,7 @@ resource "aws_instance" "locust_instance" {
               docker run -d \
                 --name prometheus \
                 -p 9090:9090 \
-                -v $(pwd)/prometheus:/etc/prometheus \
+                -v /home/ec2-user/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
                 -v prometheus_data:/prometheus \
                 prom/prometheus:latest \
                 --config.file=/etc/prometheus/prometheus.yml
@@ -88,14 +88,14 @@ resource "aws_instance" "locust_instance" {
                 -p 8089:8089 \
                 -p 5557:5557 \
                 -p 5558:5558 \
-                -v $(pwd)/locust:/mnt/locust \
+                -v /home/ec2-user/locust:/mnt/locust \
                 locustio/locust:latest \
                 -f /mnt/locust/locustfile.py --master --host=http://${var.backend-ip}:80
 
               docker run -d \
                 --name locust_worker \
                 --network locust-network \
-                -v $(pwd)/locust:/mnt/locust \
+                -v /home/ec2-user/locust:/mnt/locust \
                 locustio/locust:latest \
                 -f /mnt/locust/locustfile.py --worker --master-host=locust_master
 
