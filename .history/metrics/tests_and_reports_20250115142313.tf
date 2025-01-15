@@ -60,6 +60,7 @@ resource "aws_instance" "locust_instance" {
 
               # Crear directorios para los volúmenes
               mkdir -p /home/ec2-user/prometheus
+              mkdir -p /home/ec2-user/prometheus_data
               mkdir -p /home/ec2-user/locust
 
               aws s3 cp s3://${var.bucket-name}/locustfile.py /home/ec2-user/locust/locustfile.py
@@ -76,8 +77,8 @@ resource "aws_instance" "locust_instance" {
               docker run -d \
                 --name prometheus \
                 -p 9090:9090 \
-                -v /home/ec2-user/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
-                -v prometheus_data:/prometheus \
+                -v /home/ec2-user/prometheus:/etc/prometheus \
+                -v /home/ec2-user/prometheus_data:/prometheus \
                 prom/prometheus:latest \
                 --config.file=/etc/prometheus/prometheus.yml
 
