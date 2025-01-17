@@ -90,7 +90,7 @@ resource "aws_instance" "locust_instance" {
                 -p 5558:5558 \
                 -v /home/ec2-user/locust:/mnt/locust \
                 locustio/locust:latest \
-                -f /mnt/locust/locustfile.py --master --host=http://${var.backend-ip}:80
+                -f /mnt/locust/locustfile.py --master --host=http://${var.backend-ip}:5000
 
               docker run -d \
                 --name locust_worker \
