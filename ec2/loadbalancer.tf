@@ -57,14 +57,28 @@ resource "aws_instance" "lb_instance" {
             #!/bin/bash
             set -e  # Exit on any error
 
+            # Add Docker repository
+            sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
+            # Install Docker
+            sudo dnf install -y docker
+
+            # Start Docker service
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            # Add the current user to the Docker group to avoid permission issues
+            sudo usermod -aG docker ec2-user
+
             aws s3 cp s3://${var.bucket-name}/nginx.conf /home/ec2-user/nginx.conf
             aws s3 cp s3://${var.bucket-name}/Dockerfile /home/ec2-user/Dockerfile
 
-            sed -i "s/{MAGE_IP}/${aws_eip.mage.public_ip}/g" /home/ec2-user/nginx.conf
+            sed -i "s/{MAGE_IP_1}/${aws_instance.mage_instance[0].public_ip}/g" /home/ec2-user/nginx.conf
+            sed -i "s/{MAGE_IP_2}/${aws_instance.mage_instance[1].public_ip}/g" /home/ec2-user/nginx.conf
 
             cd /home/ec2-user
-            docker build -t nginx .
-            docker run -d --name nginx -p 6789:6789 nginx nginx
+            sudo docker build -t nginx .
+            sudo docker run --name nginx -p 6789:6789 nginx
             EOF
 
   tags = {

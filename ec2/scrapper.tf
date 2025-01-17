@@ -57,7 +57,7 @@ resource "aws_instance" "scrapper_instance" {
 
               # Run the container
               cat <<EOT >> /home/ec2-user/run.sh
-              docker run -d --name scrapper -e "BUCKET_NAME=${var.bucket-name}" -e "REGION=us-east-1" -e "USERS=300" -e "URL=$1" ${var.docker-username}/github-scrapper
+              docker run -d --name scrapper -e "BUCKET_NAME=${var.bucket-name}" -e "REGION=us-east-1" -e "USERS=300" -e "URL=https://github.com/search?q=java+agenda&type=repositories&p=" ${var.docker-username}/github-scrapper
               EOT
 
               chmod +x /home/ec2-user/run.sh

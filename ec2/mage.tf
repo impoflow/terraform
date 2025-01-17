@@ -1,6 +1,3 @@
-resource "aws_eip" "mage" {
-}
-
 resource "aws_key_pair" "ssh_key" {
   key_name   = "my-key-pair"
   public_key = file(var.key-name)
@@ -48,6 +45,7 @@ resource "aws_security_group" "mage_sg" {
 }
 
 resource "aws_instance" "mage_instance" {
+  count                  = 2
   ami                    = "ami-0fff1b9a61dec8a5f"
   instance_type          = "t2.medium"
   subnet_id              = var.subnet-id
@@ -96,11 +94,6 @@ resource "aws_instance" "mage_instance" {
               EOF
 
   tags = {
-    Name = "Mage-Instance"
+    Name = "Mage-Instance-${count.index + 1}"
   }
-}
-
-resource "aws_eip_association" "mage_eip_association" {
-  instance_id   = aws_instance.mage_instance.id
-  allocation_id = aws_eip.mage.id
 }
