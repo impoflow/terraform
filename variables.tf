@@ -46,12 +46,32 @@ variable "docker-passwd" {
   sensitive   = true
 }
 
+variable "access-key" {
+  description = "Access key for AWS"
+  type        = string
+  sensitive   = true
+}
+
+variable "secret-key" {
+  description = "Secret key for AWS"
+  type        = string
+  sensitive   = true
+}
+
+variable "session-token" {
+  description = "Session token for AWS"
+  type        = string
+  sensitive   = true
+}
+
 variable "github-mage-token" {
   description = "Token for GitHub"
   default     = "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"
+  sensitive   = true
 }
 
 variable "github-webservice-token" {
   description = "Token for GitHub"
   default     = "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"
+  sensitive   = true
 }

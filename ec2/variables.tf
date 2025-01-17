@@ -41,6 +41,21 @@ variable "neo4j-passwd" {
   sensitive = true
 }
 
+variable "secret-key" {
+  type      = string
+  sensitive = true
+}
+
+variable "access-key" {
+  type      = string
+  sensitive = true
+}
+
+variable "session-token" {
+  type      = string
+  sensitive = true
+}
+
 variable "github-token" {
   type = string
 }

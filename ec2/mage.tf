@@ -59,47 +59,44 @@ resource "aws_instance" "mage_instance" {
   depends_on = [aws_instance.mongodb_instance, aws_instance.neo4j_instance]
 
   user_data = <<-EOF
-                #!/bin/bash
-                set -e
+#!/bin/bash
+              set -e  # Exit on any error
 
-                # Actualizamos el sistema
-                sudo yum update -y
+              # Add Docker repository
+              sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 
-                # Instalamos Python 3
-                sudo yum install -y python3 git
+              # Install Docker
+              sudo dnf install -y docker
 
-                # Instalamos pip si no está disponible
-                sudo python3 -m ensurepip
+              # Start Docker service
+              sudo systemctl start docker
+              sudo systemctl enable docker
 
-                # Creamos un entorno virtual para Mage AI
-                python3 -m venv /home/ec2-user/myenv
-                source /home/ec2-user/myenv/bin/activate
+              # Add the current user to the Docker group to avoid permission issues
+              sudo usermod -aG docker ec2-user
 
-                # Instalamos Mage AI y dependencias adicionales
-                pip install --upgrade pip
-                pip install mage-ai
-                pip install neo4j pymongo boto3
+              # Ensure the Docker daemon is ready
+              sleep 10  # Give Docker time to initialize
 
-                cat <<EOT >> /home/ec2-user/mage_env.sh
-                export MONGO_USER=${var.mongodb-username}
-                export MONGO_PASSWD=${var.mongodb-passwd}
-                export MONGO_HOST=${aws_eip.mongodb.public_ip}
-                export NEO_USER=${var.neo4j-username}
-                export NEO_PASSWD=${var.neo4j-passwd}
-                export NEO_HOST=${aws_eip.neo4j.public_ip}
-                EOT
+              # Login to Docker registry
+              echo ${var.docker-passwd} | docker login -u ${var.docker-username} --password-stdin
 
-                chmod +x /home/ec2-user/mage_env.sh
-                source /home/ec2-user/mage_env.sh
+              # Pull the Docker image
+              sudo docker pull ${var.docker-username}/mage-project
 
-                # Clonamos el repositorio de Mage AI
-                cd /home/ec2-user
-                if [ ! -d "mage" ]; then
-                    git clone https://${var.github-token}@github.com/impoflow/mage.git
-                fi
-                
-                nohup mage start "/home/ec2-user/mage" --host 0.0.0.0 --port 6789 &
-                EOF
+              docker run \
+                -e "AWS_ACCESS_KEY_ID=${var.access-key}" \
+                -e "AWS_SECRET_ACCESS_KEY=${var.secret-key}" \
+                -e "AWS_SESSION_TOKEN=${var.session-token}" \
+                -e "MONGO_USER=${var.mongodb-username}" \
+                -e "MONGO_PASSWD=${var.mongodb-passwd}" \
+                -e "MONGO_HOST=${aws_eip.mongodb.public_ip}" \
+                -e "NEO_USER=${var.neo4j-username}" \
+                -e "NEO_PASSWD=${var.neo4j-passwd}" \
+                -e "NEO_HOST=${aws_eip.neo4j.public_ip}" \
+                -p 6789:6789 \
+                -d ${var.docker-username}/mage-project
+              EOF
 
   tags = {
     Name = "Mage-Instance"
