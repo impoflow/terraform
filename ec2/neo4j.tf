@@ -4,31 +4,31 @@ resource "aws_eip" "neo4j" {
 resource "aws_security_group" "neo4j_sg" {
   name        = "neo4j-security-group"
   description = "Grupo de seguridad para Neo4j"
-  vpc_id = var.vpc-id
-  
+  vpc_id      = var.vpc-id
+
   ingress {
-    from_port   = 22    # SSH
+    from_port   = 22 # SSH
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 80    # HTTP
+    from_port   = 80 # HTTP
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 7474  # Puerto para Neo4j
+    from_port   = 7474 # Puerto para Neo4j
     to_port     = 7474
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 7687  # Puerto para Neo4j
+    from_port   = 7687 # Puerto para Neo4j
     to_port     = 7687
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -44,13 +44,13 @@ resource "aws_security_group" "neo4j_sg" {
 
 resource "aws_instance" "neo4j_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f" # Amazon Linux 2 AMI (actualiza si es necesario)
-  instance_type         = "t2.micro"
-  subnet_id             = var.subnet-id
+  instance_type          = "t2.micro"
+  subnet_id              = var.subnet-id
   vpc_security_group_ids = [aws_security_group.neo4j_sg.id]
 
   iam_instance_profile = "EMR_EC2_DefaultRole"
 
-user_data = <<-EOF
+  user_data = <<-EOF
               #!/bin/bash
 
               # Actualizar el sistema

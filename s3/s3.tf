@@ -33,5 +33,5 @@ resource "null_resource" "create_bucket_and_upload" {
       echo "Subiendo prometheus.yml al bucket ${var.bucket-name}..."
       aws s3 cp s3/conf/prometheus.yml s3://${var.bucket-name}/prometheus.yml
     EOT
-  } 
+  }
 }

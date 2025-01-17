@@ -10,30 +10,30 @@ resource "aws_security_group" "mage_sg" {
   name        = "mage-security-group"
   description = "Grupo de seguridad para Mage"
   vpc_id      = var.vpc-id
-  
+
   ingress {
-    from_port   = 22    # SSH
+    from_port   = 22 # SSH
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 80    # HTTP
+    from_port   = 80 # HTTP
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 8080  # Mage AI
+    from_port   = 8080 # Mage AI
     to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 6789  # Puerto personalizado para Mage
+    from_port   = 6789 # Puerto personalizado para Mage
     to_port     = 6789
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -56,7 +56,7 @@ resource "aws_instance" "mage_instance" {
 
   iam_instance_profile = "EMR_EC2_DefaultRole"
 
-  depends_on = [ aws_instance.mongodb_instance, aws_instance.neo4j_instance ]
+  depends_on = [aws_instance.mongodb_instance, aws_instance.neo4j_instance]
 
   user_data = <<-EOF
                 #!/bin/bash

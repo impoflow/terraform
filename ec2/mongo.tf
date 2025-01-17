@@ -1,39 +1,39 @@
-  resource "aws_eip" "mongodb" {
+resource "aws_eip" "mongodb" {
+}
+
+resource "aws_security_group" "mongodb_sg" {
+  name        = "mongodb-security-group"
+  description = "Grupo de seguridad para MongoDB"
+  vpc_id      = var.vpc-id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  resource "aws_security_group" "mongodb_sg" {
-    name        = "mongodb-security-group"
-    description = "Grupo de seguridad para MongoDB"
-    vpc_id      = var.vpc-id
-
-    ingress {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-      from_port   = 80    # HTTP
-      to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-      from_port   = 27017
-      to_port     = 27017
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    egress {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
+  ingress {
+    from_port   = 80 # HTTP
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 resource "aws_instance" "mongodb_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f"
@@ -100,7 +100,7 @@ resource "aws_instance" "mongodb_instance" {
 }
 
 
-  resource "aws_eip_association" "mongodb_eip_association" {
-    instance_id   = aws_instance.mongodb_instance.id
-    allocation_id = aws_eip.mongodb.id
-  }
+resource "aws_eip_association" "mongodb_eip_association" {
+  instance_id   = aws_instance.mongodb_instance.id
+  allocation_id = aws_eip.mongodb.id
+}

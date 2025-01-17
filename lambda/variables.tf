@@ -3,7 +3,7 @@ variable "bucket-name" {
 }
 
 variable "neo4j-passwd" {
-  type = string
+  type      = string
   sensitive = true
 }
 
