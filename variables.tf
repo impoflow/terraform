@@ -46,14 +46,8 @@ variable "docker-passwd" {
   sensitive   = true
 }
 
-variable "github-mage-token" {
+variable "github-token" {
   description = "Token for GitHub"
-  default     = "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"
-  sensitive   = true
-}
-
-variable "github-webservice-token" {
-  description = "Token for GitHub"
-  default     = "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"
+  type        = string
   sensitive   = true
 }

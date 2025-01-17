@@ -26,7 +26,7 @@ module "aws-ec2" {
   neo4j-username   = var.neo4j-username
   neo4j-passwd     = var.neo4j-passwd
 
-  github-token = var.github-mage-token
+  github-token = var.github-token
 }
 
 module "aws-lambda" {
@@ -49,7 +49,7 @@ module "aws-webservice" {
   region      = var.region
 
   key-name     = var.ssh-key-name
-  github-token = var.github-webservice-token
+  github-token = var.github-token
 
   s3-function-arn    = module.aws-lambda.s3-function-arn
   neo4j-function-arn = module.aws-lambda.neo4j-function-arn
