@@ -71,7 +71,6 @@ resource "aws_instance" "backend_instance" {
                 fi
                 
                 cd webservice
-                git checkout develop
 
                 # Construimos y levantamos los contenedores con Docker Compose
                 sudo /usr/local/bin/docker-compose up --build -d
