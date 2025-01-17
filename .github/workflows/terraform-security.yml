@@ -7,7 +7,7 @@ on:
 
 jobs:
   security-check:
-    runs-on: ubuntu-latesta
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
