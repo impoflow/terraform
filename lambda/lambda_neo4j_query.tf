@@ -13,6 +13,7 @@ resource "aws_lambda_function" "neo4j_query_lambda" {
   handler          = "neo_lambda_handler.lambda_handler" # Nombre del archivo y la función a ejecutar
   filename         = data.archive_file.lambda_neo4j_query.output_path
   source_code_hash = data.archive_file.lambda_neo4j_query.output_base64sha256
+  timeout          = 7
 
   environment {
     variables = {
