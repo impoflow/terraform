@@ -1,42 +1,142 @@
-## Requirements
+# Terraform Project: Cloud Infrastructure
 
-No requirements.
+This repository contains the files required to deploy and manage cloud infrastructure using Terraform. The structure is organized into modules and directories based on different system components, such as networks, web services, databases, and Lambda functions.
 
-## Providers
+## Repository Structure
 
-No providers.
+```
+├── ec2
+│   ├── loadbalancer.tf          # Load balancer configuration
+│   ├── mage.tf                  # Mage instance configuration
+│   ├── mongo.tf                 # MongoDB database configuration
+│   ├── neo4j.tf                 # Neo4j database configuration
+│   ├── output.tf                # Outputs related to EC2 instances
+│   ├── scrapper.tf              # Scraper configuration
+│   └── variables.tf             # Variables used in the EC2 module
+├── lambda
+│   ├── lambda_neo4j_query.tf    # Lambda configuration for querying Neo4j
+│   ├── lambda_s3.tf             # Lambda configuration for interacting with S3
+│   ├── output.tf                # Outputs related to Lambda functions
+│   ├── src                      # Source code for Lambda functions
+│   │   ├── neo
+│   │   │   ├── Neo4jDataBaseHandler.py    # Neo4j database handler
+│   │   │   ├── neo_lambda_function.zip   # Compressed package for Neo4j Lambda
+│   │   │   └── neo_lambda_handler.py     # Handler for the Neo4j Lambda function
+│   │   └── s3
+│   │       ├── s3_lambda_function.zip    # Compressed package for S3 Lambda
+│   │       └── s3_lambda_handler.py      # Handler for the S3 Lambda function
+│   └── variables.tf             # Variables used in the Lambda module
+├── metrics
+│   ├── ssh.tf                   # SSH monitoring configuration
+│   ├── tests_and_reports.tf     # Test and report configuration
+│   └── variables.tf             # Variables related to metrics
+├── network
+│   ├── network.tf               # Network configuration
+│   └── output.tf                # Outputs related to the network
+├── s3
+│   ├── conf
+│   │   ├── locustfile.py        # Load testing configuration with Locust
+│   │   ├── mongod.conf          # MongoDB configuration
+│   │   ├── neo4j.conf           # Neo4j configuration
+│   │   └── prometheus.yml       # Prometheus configuration
+│   ├── nginx
+│   │   ├── Dockerfile           # Dockerfile for Nginx container
+│   │   └── nginx.conf           # Nginx configuration file
+│   ├── s3.tf                    # S3 service configuration
+│   └── variables.tf             # Variables used in the S3 module
+├── webservice
+│    ├── output.tf                # Outputs related to the web service
+│    ├── ssh.tf                   # SSH access configuration
+│    ├── variables.tf             # Variables used in the web service module
+│    └── webservice.tf            # Web service configuration
+├── provider.tf                  # Terraform provider configuration
+├── README.md                    # Project documentation
+└── variables.tf                 # Global project variables
+```
 
-## Modules
+## Prerequisites
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_aws-ec2"></a> [aws-ec2](#module\_aws-ec2) | ./ec2 | n/a |
-| <a name="module_aws-lambda"></a> [aws-lambda](#module\_aws-lambda) | ./lambda | n/a |
-| <a name="module_aws-metrics"></a> [aws-metrics](#module\_aws-metrics) | ./metrics | n/a |
-| <a name="module_aws-network"></a> [aws-network](#module\_aws-network) | ./network | n/a |
-| <a name="module_aws-s3"></a> [aws-s3](#module\_aws-s3) | ./s3 | n/a |
-| <a name="module_aws-webservice"></a> [aws-webservice](#module\_aws-webservice) | ./webservice | n/a |
+1. **Terraform**: Ensure Terraform is installed. [Installation instructions](https://www.terraform.io/downloads).
+2. **Cloud Provider**: This project is designed for AWS.
+3. **Credentials**: Configure AWS credentials for Terraform. Ensure your AWS credentials are stored properly in the `~/.aws/credentials` file:
 
-## Resources
+   ### For Linux/MacOS:
+   The file should look like this:
+   ```ini
+   [default]
+   aws_access_key_id = YOUR_AWS_ACCESS_KEY_ID
+   aws_secret_access_key = YOUR_AWS_SECRET_ACCESS_KEY
+   ```
 
-No resources.
+   ### For Windows:
+   Use the path `%USERPROFILE%\.aws\credentials` and structure it similarly:
+   ```ini
+   [default]
+   aws_access_key_id = YOUR_AWS_ACCESS_KEY_ID
+   aws_secret_access_key = YOUR_AWS_SECRET_ACCESS_KEY
+   ```
 
-## Inputs
+   Replace `YOUR_AWS_ACCESS_KEY_ID` and `YOUR_AWS_SECRET_ACCESS_KEY` with your actual AWS credentials.
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_bucket-name"></a> [bucket-name](#input\_bucket-name) | bucket name | `string` | `"neo4j-tscd-310-10-2024"` | no |
-| <a name="input_docker-passwd"></a> [docker-passwd](#input\_docker-passwd) | Password for DockerHub | `string` | n/a | yes |
-| <a name="input_docker-username"></a> [docker-username](#input\_docker-username) | Username for DockerHub | `string` | `"autogram"` | no |
-| <a name="input_github-mage-token"></a> [github-mage-token](#input\_github-mage-token) | Token for GitHub | `string` | `"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"` | no |
-| <a name="input_github-webservice-token"></a> [github-webservice-token](#input\_github-webservice-token) | Token for GitHub | `string` | `"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"` | no |
-| <a name="input_mongodb-passwd"></a> [mongodb-passwd](#input\_mongodb-passwd) | Password for mongodb | `string` | n/a | yes |
-| <a name="input_mongodb-username"></a> [mongodb-username](#input\_mongodb-username) | Nombre de usuario para MongoDB | `string` | `"user"` | no |
-| <a name="input_neo4j-passwd"></a> [neo4j-passwd](#input\_neo4j-passwd) | Password for neo4j | `string` | n/a | yes |
-| <a name="input_neo4j-username"></a> [neo4j-username](#input\_neo4j-username) | Nombre de usuario para MongoDB | `string` | `"neo4j"` | no |
-| <a name="input_region"></a> [region](#input\_region) | value of the region | `string` | `"us-east-1"` | no |
-| <a name="input_ssh-key-name"></a> [ssh-key-name](#input\_ssh-key-name) | Nombre de la clave SSH para acceder a la instancia | `string` | `"~/.ssh/my-ssh-key.pub"` | no |
+## Usage
 
-## Outputs
+1. **Initialize Terraform**:
 
-No outputs.
+   ```bash
+   terraform init
+   ```
+
+2. **Preview Changes**:
+
+   ```bash
+   terraform plan
+   ```
+
+3. **Apply Changes**:
+
+   ```bash
+   terraform apply
+   ```
+
+4. **Destroy Infrastructure** (optional):
+
+   ```bash
+   terraform destroy
+   ```
+
+## Main Components
+
+### EC2
+
+Contains the configuration for instances, databases, and load balancers required for the system.
+
+### Lambda
+
+Defines Lambda functions to interact with databases (Neo4j) and storage (S3). Includes the source code and compressed packages for the functions.
+
+### Network
+
+Manages networks, subnets, and security configurations required for the infrastructure.
+
+### Metrics
+
+Configuration for monitoring system performance, including tests, reports, and SSH access.
+
+### S3
+
+Defines configurations for cloud storage, Nginx containers, and configuration files for tools like Prometheus and MongoDB.
+
+### Webservice
+
+Handles the API logic and serves as our main website.
+
+## Contributions
+
+Contributions are welcome. Please open an issue or submit a pull request if you have suggestions or improvements.
+
+## Questions
+
+If you have questions about any aspect of the project, feel free to contact us or open an issue in the repository.
+
+
+
