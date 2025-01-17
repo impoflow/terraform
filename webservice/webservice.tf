@@ -89,8 +89,10 @@ resource "aws_instance" "backend_instance" {
                 
                 cd webservice
                 export INSTANCE_PUBLIC_IP=${aws_eip.backend.public_ip}
-                export BUCKET_NAME=${var.bucket-name}
-                export REGION=${var.region}
+                cat <<-EOC > /home/ec2-user/webservice/.env
+                BUCKET_NAME=${var.bucket-name}
+                REGION=${var.region}
+                EOC
 
                 sed -i "s/{backend_ip}/$INSTANCE_PUBLIC_IP/g" client/script.js
 
