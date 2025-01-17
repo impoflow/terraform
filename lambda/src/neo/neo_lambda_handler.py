@@ -19,9 +19,7 @@ def lambda_handler(event, context):
             "/users": lambda: query_handler.get_users(),
             "/isolated/users": lambda: query_handler.get_users_without_projects(),
             "/projects": lambda: query_handler.get_projects(),
-            "/clusters": lambda: query_handler.detect_clusters(),
-            "/highly_connected_users": lambda: query_handler.get_highly_connected_users(),
-            "/highly_connected_projects": lambda: query_handler.get_highly_connected_projects(),
+            "/clusters": lambda: query_handler.detect_clusters()
         }
 
         if route.startswith("/user/"):
