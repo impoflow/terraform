@@ -30,3 +30,4 @@ jobs:
         with:
           commit_message: "Apply Terraform formatting"
           branch: ft-new-test
+          commit_user_name: GitHub Actions
