@@ -2,6 +2,14 @@ variable "vpc-id" {
   type = string
 }
 
+variable "bucket-name" {
+  type = string
+}
+
+variable "region" {
+  type = string
+}
+
 variable "subnet-id" {
   type = string
 }

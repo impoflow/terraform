@@ -1,5 +1,6 @@
 from Neo4jDataBaseHandler import Neo4jConnection, Neo4jQueryHandler
 import os
+import re
 
 def lambda_handler(event, context):
     neo4j_uri = os.environ.get("NEO4J_URI")
@@ -15,7 +16,10 @@ def lambda_handler(event, context):
         route = event.get("route", "")
         handlers = {
             "/users": lambda: query_handler.get_users(),
-            "/projects": lambda: query_handler.get_projects()
+            "/projects": lambda: query_handler.get_projects(),
+            "/clusters": lambda: query_handler.detect_clusters(),
+            "/highly_connected_users": lambda: query_handler.get_highly_connected_users(),
+            "/highly_connected_projects": lambda: query_handler.get_highly_connected_projects(),
         }
 
         if route.startswith("/user/"):
@@ -23,6 +27,12 @@ def lambda_handler(event, context):
 
         if route.startswith("/project/"):
             return handle_project_routes(route, query_handler)
+
+        if route.startswith("/shortest_path"):
+            return handle_shortest_path(event, query_handler)
+
+        if route.startswith("/all_paths"):
+            return handle_all_paths(event, query_handler)
 
         if route in handlers:
             response = handlers[route]()
@@ -36,9 +46,7 @@ def lambda_handler(event, context):
     finally:
         conn.close()
 
-
 def handle_user_routes(route, query_handler):
-    """Manejo de rutas relacionadas con usuarios."""
     user_name = route.split("/")[2]
 
     if route.endswith("/projects"):
@@ -55,9 +63,7 @@ def handle_user_routes(route, query_handler):
         }
     return {"statusCode": 200, "body": response}
 
-
 def handle_project_routes(route, query_handler):
-    """Manejo de rutas relacionadas con proyectos."""
     project_id = route.split("/")[2]
 
     if route.endswith("/owner"):
@@ -66,6 +72,8 @@ def handle_project_routes(route, query_handler):
         response = query_handler.get_project_classes(project_id)
     elif route.endswith("/collaborators"):
         response = query_handler.get_project_collaborators(project_id)
+    elif route.endswith("/isolated_classes"):
+        response = query_handler.isolated_classes_in_project(project_id)
     else:
         response = {
             "owner": query_handler.get_project_owner(project_id),
@@ -73,3 +81,42 @@ def handle_project_routes(route, query_handler):
             "collaborators": query_handler.get_project_collaborators(project_id)
         }
     return {"statusCode": 200, "body": response}
+
+def handle_shortest_path(event, query_handler):
+    route = event.get("route", "")
+    match = re.search(r"user1=([^&]+)&user2=([^&]+)", route)
+
+    if match:
+        user1 = match.group(1)
+        user2 = match.group(2)
+
+        print(user1)
+        print(user2)
+
+        print(user1, user2)
+        response = query_handler.shortest_path_between_users(user1, user2)
+        print(response)
+        return {"statusCode": 200, "body": response}
+
+    else:
+        return {"statusCode": 400, "body": "Bad Request"}
+
+def handle_all_paths(event, query_handler):
+    route = event.get("route", "")
+    match = re.search(r"user1=([^&]+)&user2=([^&]+)&max_depth=([^&]+)", route)
+
+    if match:
+        user1 = match.group(1)
+        user2 = match.group(2)
+        n = match.group(3)
+
+        print(user1)
+        print(user2)
+        print(n)
+
+        print(user1, user2)
+        response = query_handler.all_paths_between_users(user1, user2, max_depth=n)
+        return {"statusCode": 200, "body": response}
+
+    else:
+        return {"statusCode": 400, "body": "Bad Request"}

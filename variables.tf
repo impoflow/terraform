@@ -10,7 +10,7 @@ variable "region" {
 
 variable "bucket-name" {
   description = "bucket name"
-  default     = "neo4j-tscd-310-10-2026"
+  default     = "neo4j-tscd-310-10-2025"
 }
 
 variable "neo4j-username" {
@@ -42,24 +42,6 @@ variable "docker-username" {
 
 variable "docker-passwd" {
   description = "Password for DockerHub"
-  type        = string
-  sensitive   = true
-}
-
-variable "access-key" {
-  description = "Access key for AWS"
-  type        = string
-  sensitive   = true
-}
-
-variable "secret-key" {
-  description = "Secret key for AWS"
-  type        = string
-  sensitive   = true
-}
-
-variable "session-token" {
-  description = "Session token for AWS"
   type        = string
   sensitive   = true
 }

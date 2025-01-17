@@ -16,10 +16,6 @@ module "aws-ec2" {
   vpc-id    = module.aws-network.vpc-id
   subnet-id = module.aws-network.subnet-id
 
-  access-key    = var.access-key
-  secret-key    = var.secret-key
-  session-token = var.session-token
-
   key-name    = var.ssh-key-name
   bucket-name = var.bucket-name
 
@@ -48,6 +44,9 @@ module "aws-webservice" {
 
   vpc-id    = module.aws-network.vpc-id
   subnet-id = module.aws-network.subnet-id
+
+  bucket-name = var.bucket-name
+  region      = var.region
 
   key-name     = var.ssh-key-name
   github-token = var.github-webservice-token

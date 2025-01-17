@@ -88,6 +88,11 @@ resource "aws_instance" "backend_instance" {
                 fi
                 
                 cd webservice
+                export INSTANCE_PUBLIC_IP=${aws_eip.backend.public_ip}
+                export BUCKET_NAME=${var.bucket-name}
+                export REGION=${var.region}
+
+                sed -i "s/{backend_ip}/$INSTANCE_PUBLIC_IP/g" client/script.js
 
                 # Construimos y levantamos los contenedores con Docker Compose
                 sudo /usr/local/bin/docker-compose up --build -d

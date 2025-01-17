@@ -94,3 +94,73 @@ class Neo4jQueryHandler:
         with self.driver.session() as session:
             result = session.run(query, project=project)
             return [record["collaborator_name"] for record in result]
+
+    def shortest_path_between_users(self, user1, user2):
+        query = """
+        MATCH (u1:User {name: $user1}), (u2:User {name: $user2})
+        MATCH path = shortestPath((u1)-[:OWNS|COLLABORATES_IN*]-(u2))
+        UNWIND nodes(path) AS n
+        WITH n
+        WHERE 'User' IN labels(n)
+        RETURN DISTINCT n.name AS user_name
+        """
+        with self.driver.session() as session:
+            result = session.run(query, user1=user1, user2=user2)
+            return [record["user_name"] for record in result]
+
+    def all_paths_between_users(self, user1, user2, max_depth=5):
+        query = f"""
+        MATCH (u1:User {{name: $user1}}), (u2:User {{name: $user2}})
+        MATCH path = (u1)-[:OWNS|COLLABORATES_IN*1..{max_depth}]-(u2)
+        UNWIND nodes(path) AS n
+        WITH n
+        WHERE 'User' IN labels(n)
+        RETURN DISTINCT n.name AS user_name
+        """
+        
+        with self.driver.session() as session:
+            result = session.run(query, user1=user1, user2=user2)
+            return [record["user_name"] for record in result]
+
+    def isolated_classes_in_project(self, project_name, owner):
+        query = """
+        MATCH (c:Class {project: $project_name, user: $owner})
+        WHERE NOT (c)--()
+        RETURN c.name AS class
+        """
+        with self.driver.session() as session:
+            result = session.run(query, project_name=project_name, owner=owner)
+            return [record["class"] for record in result]
+
+    def detect_clusters(self):
+        query = """
+        CALL algo.louvain.stream("User", "COLLABORATES_IN")
+        YIELD nodeId, community
+        RETURN algo.asNode(nodeId).name AS user, community
+        """
+        with self.driver.session() as session:
+            result = session.run(query)
+            return [{"user": record["user"], "community": record["community"]} for record in result]
+
+    def get_highly_connected_users(self):
+        query = """
+        MATCH (u:User)-[r]-()
+        RETURN u.name AS user, COUNT(r) AS connections
+        ORDER BY connections DESC
+        LIMIT 5
+        """
+        with self.driver.session() as session:
+            result = session.run(query)
+            return [{"user": record["user"], "connections": record["connections"]} for record in result]
+
+    def get_highly_connected_projects(self):
+        query = """
+        MATCH (p:Project)<-[r]-()
+        RETURN p.name AS project, COUNT(r) AS connections
+        ORDER BY connections DESC
+        LIMIT 5
+        """
+        with self.driver.session() as session:
+            result = session.run(query)
+            return [{"project": record["project"], "connections": record["connections"]} for record in result]
+
