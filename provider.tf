@@ -30,7 +30,7 @@ module "aws-ec2" {
 }
 
 module "aws-lambda" {
-  source   = "./lambda"
+  source = "./lambda"
 
   neo4j-ip = module.aws-ec2.neo4j-instance-public-ip
   mage-ip  = module.aws-ec2.mage-instance-public-ip
@@ -40,7 +40,7 @@ module "aws-lambda" {
 }
 
 module "aws-webservice" {
-  source    = "./webservice"
+  source = "./webservice"
 
   vpc-id    = module.aws-network.vpc-id
   subnet-id = module.aws-network.subnet-id
@@ -53,7 +53,7 @@ module "aws-webservice" {
 }
 
 module "aws-metrics" {
-  source    = "./metrics"
+  source = "./metrics"
 
   vpc-id    = module.aws-network.vpc-id
   subnet-id = module.aws-network.subnet-id
