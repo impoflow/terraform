@@ -57,8 +57,14 @@ resource "aws_instance" "scrapper_instance" {
 
               # Run the container
               cat <<EOT >> /home/ec2-user/run.sh
-              docker run -e "BUCKET_NAME=${var.bucket-name}" -e "REGION=us-east-1" ${var.docker-username}/github-scrapper
+              docker run -e "BUCKET_NAME=${var.bucket-name}" -e "REGION=us-east-1" -e "URL=https://github.com/search?q=java+agenda&type=repositories&p=" ${var.docker-username}/github-scrapper
               EOT
+
+              docker run \
+                -e "BUCKET_NAME=neo4j-tscd-310-10-2024" \
+                -e "REGION=us-east-1" \
+                -e "URL=https://github.com/search?q=java+agenda&type=repositories&p=" \
+                autogram/github-scrapper
 
               chmod +x /home/ec2-user/run.sh
               EOF
