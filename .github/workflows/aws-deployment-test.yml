@@ -46,7 +46,6 @@ jobs:
     - name: Terraform Plan
       id: plan
       run: terraform plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
-      continue-on-error: true
 
     - name: Check Plan Status
       if: github.ref == 'refs/heads/main'
