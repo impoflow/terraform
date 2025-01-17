@@ -2,9 +2,9 @@ resource "aws_security_group" "scrapper_sg" {
   name        = "scrapper-security-group"
   description = "Grupo de seguridad para el Scrapper"
   vpc_id      = var.vpc-id
-  
+
   ingress {
-    from_port   = 22    # SSH
+    from_port   = 22 # SSH
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -27,7 +27,7 @@ resource "aws_instance" "scrapper_instance" {
 
   iam_instance_profile = "EMR_EC2_DefaultRole"
 
-  depends_on = [ aws_instance.mage_instance ]
+  depends_on = [aws_instance.mage_instance]
 
   user_data = <<-EOF
               #!/bin/bash
