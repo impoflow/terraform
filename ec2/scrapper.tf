@@ -2,9 +2,9 @@ resource "aws_security_group" "scrapper_sg" {
   name        = "scrapper-security-group"
   description = "Grupo de seguridad para el Scrapper"
   vpc_id      = var.vpc-id
-
+  
   ingress {
-    from_port   = 22 # SSH
+    from_port   = 22    # SSH
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -27,7 +27,7 @@ resource "aws_instance" "scrapper_instance" {
 
   iam_instance_profile = "EMR_EC2_DefaultRole"
 
-  depends_on = [aws_instance.mage_instance]
+  depends_on = [ aws_instance.mage_instance ]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -57,14 +57,8 @@ resource "aws_instance" "scrapper_instance" {
 
               # Run the container
               cat <<EOT >> /home/ec2-user/run.sh
-              docker run -e "BUCKET_NAME=${var.bucket-name}" -e "REGION=us-east-1" -e "URL=https://github.com/search?q=java+agenda&type=repositories&p=" ${var.docker-username}/github-scrapper
+              docker run -e "BUCKET_NAME=${var.bucket-name}" -e "REGION=us-east-1" -e "USERS=300" -e "URL=https://github.com/search?q=java+agenda&type=repositories&p=" ${var.docker-username}/github-scrapper
               EOT
-
-              docker run \
-                -e "BUCKET_NAME=neo4j-tscd-310-10-2024" \
-                -e "REGION=us-east-1" \
-                -e "URL=https://github.com/search?q=java+agenda&type=repositories&p=" \
-                autogram/github-scrapper
 
               chmod +x /home/ec2-user/run.sh
               EOF
