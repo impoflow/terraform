@@ -51,19 +51,18 @@ resource "aws_instance" "backend_instance" {
                 # Actualizamos el sistema
                 sudo yum update -y
 
-                # Instalamos Python 3
-                sudo yum install -y python3 git
+                # Instalamos Docker
+                sudo yum install -y docker
 
-                # Instalamos pip si no está disponible
-                sudo python3 -m ensurepip
+                # Iniciamos el servicio Docker
+                sudo service docker start
 
-                # Creamos un entorno virtual
-                python3 -m venv /home/ec2-user/myenv
-                source /home/ec2-user/myenv/bin/activate
+                # Añadimos el usuario actual al grupo docker para evitar usar sudo en cada comando
+                sudo usermod -aG docker ec2-user
 
-                # Instalamos dependencias
-                pip install --upgrade pip
-                pip install gunicorn
+                # Instalamos Docker Compose
+                sudo curl -L "https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                sudo chmod +x /usr/local/bin/docker-compose
 
                 # Clonamos el repositorio del backend
                 cd /home/ec2-user
@@ -73,13 +72,9 @@ resource "aws_instance" "backend_instance" {
                 
                 cd webservice
                 git checkout develop
-                cd server
 
-                # Iniciamos el servidor
-                sudo su
-                source ../../myenv/bin/activate
-                pip install -r requirements.txt
-                /home/ec2-user/myenv/bin/gunicorn -w 4 -b 0.0.0.0:80 api_handler:app
+                # Construimos y levantamos los contenedores con Docker Compose
+                sudo /usr/local/bin/docker-compose up --build -d
                 EOF
 
   tags = {
