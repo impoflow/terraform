@@ -10,5 +10,5 @@ output "mongodb-instance-public-ip" {
 
 output "mage-instance-public-ip" {
   description = "La IP pública de la instancia Mage"
-  value       = aws_eip.mage.public_ip
+  value       = aws_eip.load_balancer.public_ip
 }

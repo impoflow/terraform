@@ -32,6 +32,11 @@ resource "null_resource" "create_bucket_and_upload" {
       # Subir el archivo prometheus.yml al bucket
       echo "Subiendo prometheus.yml al bucket ${var.bucket-name}..."
       aws s3 cp s3/conf/prometheus.yml s3://${var.bucket-name}/prometheus.yml
+
+      # Subir ficheros de nginx al bucket
+      echo "Subiendo ficheros de nginx al bucket ${var.bucket-name}..."
+      aws s3 cp s3/nginx/nginx.conf s3://${var.bucket-name}/nginx.conf
+      aws s3 cp s3/nginx/Dockerfile s3://${var.bucket-name}/Dockerfile
     EOT
   }
 }

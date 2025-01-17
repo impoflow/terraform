@@ -85,9 +85,6 @@ resource "aws_instance" "mage_instance" {
               sudo docker pull ${var.docker-username}/mage-project
 
               docker run \
-                -e "AWS_ACCESS_KEY_ID=${var.access-key}" \
-                -e "AWS_SECRET_ACCESS_KEY=${var.secret-key}" \
-                -e "AWS_SESSION_TOKEN=${var.session-token}" \
                 -e "MONGO_USER=${var.mongodb-username}" \
                 -e "MONGO_PASSWD=${var.mongodb-passwd}" \
                 -e "MONGO_HOST=${aws_eip.mongodb.public_ip}" \
