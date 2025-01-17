@@ -15,7 +15,7 @@ variable "docker-username" {
 }
 
 variable "docker-passwd" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -28,7 +28,7 @@ variable "mongodb-username" {
 }
 
 variable "mongodb-passwd" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -37,7 +37,22 @@ variable "neo4j-username" {
 }
 
 variable "neo4j-passwd" {
-  type = string
+  type      = string
+  sensitive = true
+}
+
+variable "secret-key" {
+  type      = string
+  sensitive = true
+}
+
+variable "access-key" {
+  type      = string
+  sensitive = true
+}
+
+variable "session-token" {
+  type      = string
   sensitive = true
 }
 

@@ -5,30 +5,30 @@ resource "aws_security_group" "locust_sg" {
   name        = "locust-security-group"
   description = "Grupo de seguridad para el locust"
   vpc_id      = var.vpc-id
-  
+
   ingress {
-    from_port   = 22    # SSH
+    from_port   = 22 # SSH
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 80    # HTTP
+    from_port   = 80 # HTTP
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 8089  # LOCUST
+    from_port   = 8089 # LOCUST
     to_port     = 8089
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 9090  # prometheus
+    from_port   = 9090 # prometheus
     to_port     = 9090
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]

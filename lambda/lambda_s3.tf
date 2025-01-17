@@ -16,7 +16,7 @@ resource "aws_lambda_function" "s3_trigger_lambda" {
 
   environment {
     variables = {
-      LOG_LEVEL = "INFO",
+      LOG_LEVEL    = "INFO",
       MAGE_API_URL = "http://${var.mage-ip}:6789/api/pipeline_schedules/1/pipeline_runs/s3PutTrigger"
     }
   }
@@ -36,7 +36,7 @@ resource "aws_s3_bucket_notification" "s3_trigger" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.s3_trigger_lambda.arn
     events              = ["s3:ObjectCreated:Put"]
-    filter_suffix = ".json"
+    filter_suffix       = ".json"
   }
 
   depends_on = [aws_lambda_permission.allow_s3_to_invoke]
