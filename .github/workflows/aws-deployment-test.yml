@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-deployment:
+  aws-test-deployment:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,10 +44,22 @@ jobs:
         cat ~/.ssh/my-ssh-key.pub
 
     - name: Terraform Plan
+      id: plan
       run: terraform plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
+      continue-on-error: true
+
+    - name: Check Plan Status
+      if: github.ref == 'refs/heads/main'
+      run: |
+        if [[ "${{ steps.plan.outcome }}" != "success" ]]; then
+          echo "Terraform Plan failed. Cancelling deployment."
+          exit 1
+        fi
 
     - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && success()
       run: terraform apply -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
 
     - name: Terraform Destroy
+      if: github.ref != 'refs/heads/main'
       run: terraform destroy -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
