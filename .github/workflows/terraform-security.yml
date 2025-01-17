@@ -1,0 +1,20 @@
+name: Terraform Security Check
+
+on:
+  push:
+    branches:
+      - ft-new-test
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latesta
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Run tfsec
+        run: tfsec .
