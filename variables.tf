@@ -10,7 +10,7 @@ variable "region" {
 
 variable "bucket-name" {
   description = "bucket name"
-  default     = "neo4j-tscd-2025-01-17"
+  default     = "neo4j-tscd-2025-01-18"
 }
 
 variable "neo4j-username" {
