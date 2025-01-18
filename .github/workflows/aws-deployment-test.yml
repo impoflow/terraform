@@ -45,7 +45,7 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
+      run: terraform plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}"
 
     - name: Check Plan Status
       if: github.ref == 'refs/heads/main'
@@ -57,8 +57,8 @@ jobs:
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && success()
-      run: terraform apply -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
+      run: terraform apply -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}" -auto-approve
 
     - name: Terraform Destroy
       if: github.ref != 'refs/heads/main'
-      run: terraform destroy -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -auto-approve
+      run: terraform destroy -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}" -auto-approve

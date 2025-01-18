@@ -42,4 +42,4 @@ jobs:
           cat ~/.ssh/my-ssh-key.pub
 
       - name: Terraform Plan
-        run: tflocal plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}"
+        run: tflocal plan -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}"
