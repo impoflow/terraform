@@ -10,6 +10,13 @@ resource "aws_security_group" "scrapper_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 80 # LOCUST
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -22,12 +29,10 @@ resource "aws_instance" "scrapper_instance" {
   ami                    = "ami-0fff1b9a61dec8a5f" # Amazon Linux 2 AMI
   instance_type          = "t2.medium"
   subnet_id              = var.subnet-id
-  key_name               = aws_key_pair.ssh_key.key_name
+  key_name               = aws_key_pair.tests_ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.scrapper_sg.id]
 
   iam_instance_profile = "myS3Role"
-
-  depends_on = [aws_instance.mage_instance]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -61,9 +66,37 @@ resource "aws_instance" "scrapper_instance" {
               EOT
 
               chmod +x /home/ec2-user/run.sh
+
+              # Locust
+              mkdir -p /home/ec2-user/locust
+
+              aws s3 cp s3://${var.bucket-name}/locustfile.py /home/ec2-user/locust/locustfile.py  
+              while [ ! -f /home/ec2-user/locust/locustfile.py ]; do
+                  sleep 5
+                  echo "Esperando archivos..."
+              done            
+
+              docker network create locust-network
+              docker run -d \
+                --name locust_master \
+                --network locust-network \
+                -p 80:8089 \
+                -p 5557:5557 \
+                -p 5558:5558 \
+                -v /home/ec2-user/locust:/mnt/locust \
+                locustio/locust:latest \
+                -f /mnt/locust/locustfile.py --master --host=http://${var.backend-ip}:5000
+
+              docker run -d \
+                --name locust_worker \
+                --network locust-network \
+                -v /home/ec2-user/locust:/mnt/locust \
+                locustio/locust:latest \
+                -f /mnt/locust/locustfile.py --worker --master-host=locust_master
+
               EOF
 
   tags = {
-    Name = "Scrapper-Instance"
+    Name = "Testing-Instance"
   }
 }

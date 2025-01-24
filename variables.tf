@@ -10,7 +10,7 @@ variable "region" {
 
 variable "bucket-name" {
   description = "bucket name"
-  default     = "neo4j-tscd-18-01-2025"
+  default     = "neo4j-tscd-18-01-2024"
 }
 
 variable "neo4j-username" {
@@ -50,4 +50,9 @@ variable "github-token" {
   description = "Token for GitHub"
   type        = string
   sensitive   = true
+}
+
+variable "deploy_tests" {
+  type    = bool
+  default = false
 }

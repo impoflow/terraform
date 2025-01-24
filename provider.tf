@@ -69,3 +69,20 @@ module "aws-metrics" {
   bucket-name = var.bucket-name
   backend-ip  = module.aws-webservice.backend-instance-public-ip
 }
+
+module "aws-tests" {
+  count = var.deploy_tests ? 1 : 0
+
+  source = "./tests"
+
+  region     = var.region
+  vpc-id     = module.aws-network.vpc-id
+  subnet-id  = module.aws-network.subnet-id
+  bucket-name = var.bucket-name
+
+  docker-username = var.docker-username
+  docker-passwd   = var.docker-passwd
+  key-name = var.ssh-key-name
+  
+  backend-ip      = module.aws-webservice.backend-instance-public-ip
+}

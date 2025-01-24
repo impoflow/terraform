@@ -55,10 +55,19 @@ jobs:
           exit 1
         fi
 
-    - name: Terraform Apply
+    - name: Terraform Apply - Main
       if: github.ref == 'refs/heads/main' && success()
       run: terraform apply -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}" -auto-approve
 
-    - name: Terraform Destroy
+    - name: Terraform Apply - Staging (Develop)
+      if: github.ref == 'refs/heads/develop' && success()
+      run: terraform apply -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}" --var "deploy_tests=true" -auto-approve
+
+    - name: Terraform Destroy - Main
       if: github.ref != 'refs/heads/main'
       run: terraform destroy -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}" -auto-approve
+
+    - name: Terraform Destroy - Staging (Develop)
+      if: github.ref != 'refs/heads/develop'
+      run: terraform destroy -var="mongodb-passwd=${{ secrets.MONGO_PASSWD }}" -var="neo4j-passwd=${{ secrets.NEO_PASSWD }}" -var="docker-passwd=${{ secrets.DOCKER_PASSWD }}" -var="github-token=${{ secrets.PAT_TOKEN }}" --var "deploy_tests=true" -auto-approve
+
