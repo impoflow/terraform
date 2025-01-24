@@ -49,7 +49,7 @@ resource "aws_instance" "locust_instance" {
   key_name               = aws_key_pair.locust_ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.locust_sg.id]
 
-  iam_instance_profile = "LabInstanceProfile"
+  iam_instance_profile = "myS3Role"
 
   user_data = <<-EOF
               #!/bin/bash

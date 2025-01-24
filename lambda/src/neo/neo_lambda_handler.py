@@ -15,38 +15,16 @@ def lambda_handler(event, context):
 
         route = event.get("route", "")
         handlers = {
-            "/report": lambda: query_handler.get_report(),
+            "/reports": lambda: query_handler.get_report(),
             "/users": lambda: query_handler.get_users(),
-            "/isolated/users": lambda: query_handler.get_users_without_projects(),
-            "/projects": lambda: query_handler.get_projects(),
-            "/clusters": lambda: query_handler.detect_clusters()
+            "/projects": lambda: query_handler.get_projects()
         }
 
-        if route.startswith("/user/"):
+        if route.startswith("/users/") or route.startswith("/users?"):
             return handle_user_routes(route, query_handler)
 
-        if route.startswith("/dense/users"):
-            return handle_users_by_degree(route, query_handler)
-
-        if route.startswith("/dense/projects"):
-            return handle_projects_by_degree(route, query_handler)
-
-        if route.startswith("/project/"):
+        if route.startswith("/projects/") or route.startswith("/projects?"):
             return handle_project_routes(route, query_handler)
-            
-        if route.startswith("/shortest_path"):
-            return handle_shortest_path(event, query_handler)
-
-        if route.startswith("/all_paths"):
-            return handle_all_paths(event, query_handler)
-
-        if route.startswith("/most_distant"):
-            response = query_handler.most_distant_users()
-            return {"statusCode": 200, "body": response}
-
-        if route.startswith("/clusters"):
-            response = query_handler.detect_clusters()
-            return {"statusCode": 200, "body": response}
 
         if route in handlers:
             response = handlers[route]()
@@ -61,7 +39,9 @@ def lambda_handler(event, context):
         conn.close()
 
 def handle_user_routes(route, query_handler):
-    user_name = route.split("/")[2]
+    elements = route.split("/")
+    if len(elements) > 2:
+        user_name = elements[2]
 
     if route.endswith("/projects"):
         response = query_handler.get_owned_projects(user_name)
@@ -72,6 +52,24 @@ def handle_user_routes(route, query_handler):
     elif route.endswith("/collaborators"):
         response = query_handler.get_common_collaborators(user_name)
 
+    elif "?isolated=true" in route:
+        response = query_handler.get_users_without_projects()
+
+    elif "?degree=" in route:
+        response = handle_users_by_degree(route, query_handler)
+
+    elif "/shortest_path?" in route:
+        response = handle_shortest_path(route, query_handler)
+
+    elif "/all_paths?" in route:
+        response = handle_all_paths(route, query_handler)
+
+    elif route.endswith("?most_distant=true"):
+        response = query_handler.most_distant_users()
+
+    elif route.endswith("/clusters"):
+        response = query_handler.detect_clusters()
+
     else:
         response = {
             "owned_projects": query_handler.get_owned_projects(user_name),
@@ -81,7 +79,9 @@ def handle_user_routes(route, query_handler):
     return {"statusCode": 200, "body": response}
 
 def handle_project_routes(route, query_handler):
-    project_id = route.split("/")[2]
+    elements = route.split("/")
+    if len(elements) > 2:
+        project_id = route.split("/")[2]
 
     if route.endswith("/owner"):
         response = query_handler.get_project_owner(project_id)
@@ -95,6 +95,12 @@ def handle_project_routes(route, query_handler):
     elif route.endswith("/isolated_classes"):
         owner = query_handler.get_project_owner(project_id)
         response = query_handler.isolated_classes_in_project(project_id, owner[0])
+
+    elif '?degree=' in route:
+        response = handle_projects_by_degree(route, query_handler)
+
+    elif route.endswith("/clusters"):
+        response = query_handler.detect_most_connected_projects()
 
     else:
         owner = query_handler.get_project_owner(project_id)
@@ -110,9 +116,8 @@ def handle_project_routes(route, query_handler):
         }
     return {"statusCode": 200, "body": response}
 
-def handle_shortest_path(event, query_handler):
-    route = event.get("route", "")
-    match = re.search(r"user1=([^&]+)&user2=([^&]+)", route)
+def handle_shortest_path(route, query_handler):
+    match = re.search(r"/users/([^&]+)/shortest_path\?user=([^&]+)", route)
 
     if match:
         user1 = match.group(1)
@@ -123,9 +128,8 @@ def handle_shortest_path(event, query_handler):
     else:
         return {"statusCode": 400, "body": "Bad Request"}
 
-def handle_all_paths(event, query_handler):
-    route = event.get("route", "")
-    match = re.search(r"user1=([^&]+)&user2=([^&]+)&max_depth=([^&]+)", route)
+def handle_all_paths(route, query_handler):
+    match = re.search(r"/users/([^&]+)/all_paths\?user=([^&]+)&max_depth=([^&]+)", route)
 
     if match:
         user1 = match.group(1)
@@ -143,7 +147,6 @@ def handle_users_by_degree(route, query_handler):
     if match:
         degree = match.group(1)
         response = query_handler.select_users_by_degree(degree)
-        print(response)
         return {"statusCode": 200, "body": response}
 
     else:
@@ -155,7 +158,6 @@ def handle_projects_by_degree(route, query_handler):
     if match:
         degree = match.group(1)
         response = query_handler.select_projects_by_degree(degree)
-        print(response)
         return {"statusCode": 200, "body": response}
 
     else:

@@ -38,4 +38,14 @@ terraform.rc
 
 .zip
 
-packages/*
+# Ignore Python dependencies in Lambda layers
+lambda/src/layers/*/python/
+lambda/src/layers/*/python/**
+lambda/src/layers/pymongo-layer/python/
+lambda/src/layers/pymongo-layer/python/**
+
+# Ignore all ZIP files
+*.zip
+
+# Ignore macOS files
+.DS_Store

@@ -1,4 +1,4 @@
-from packages.neo4j import GraphDatabase
+from neo4j import GraphDatabase
 
 class Neo4jConnection:
     def __init__(self, uri, user, pwd):
@@ -199,6 +199,24 @@ class Neo4jQueryHandler:
                     'cluster_size': record['cluster_size']
                 })
             return clusters
+
+    def detect_most_connected_projects(self):
+        query = """
+        MATCH (p:Project)<-[:COLLABORATES_IN|OWNS]-(u:User)
+        WITH p, COUNT(DISTINCT u) AS connection_count
+        RETURN p.name AS project_name, connection_count
+        ORDER BY connection_count DESC
+        LIMIT 10
+        """
+        with self.driver.session() as session:
+            result = session.run(query)
+            projects = []
+            for record in result:
+                projects.append({
+                    'project_name': record['project_name'],
+                    'connection_count': record['connection_count']
+                })
+            return projects
 
     def select_users_by_degree(self, degree):
         query = f"""

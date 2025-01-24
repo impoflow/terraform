@@ -25,7 +25,7 @@ resource "aws_instance" "scrapper_instance" {
   key_name               = aws_key_pair.ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.scrapper_sg.id]
 
-  iam_instance_profile = "EMR_EC2_DefaultRole"
+  iam_instance_profile = "myS3Role"
 
   depends_on = [aws_instance.mage_instance]
 

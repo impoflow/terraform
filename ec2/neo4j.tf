@@ -48,7 +48,7 @@ resource "aws_instance" "neo4j_instance" {
   subnet_id              = var.subnet-id
   vpc_security_group_ids = [aws_security_group.neo4j_sg.id]
 
-  iam_instance_profile = "EMR_EC2_DefaultRole"
+  iam_instance_profile = "myS3Role"
 
   user_data = <<-EOF
               #!/bin/bash

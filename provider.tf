@@ -37,6 +37,10 @@ module "aws-lambda" {
 
   bucket-name  = var.bucket-name
   neo4j-passwd = var.neo4j-passwd
+
+  mongodb-ip = module.aws-ec2.mongodb-instance-public-ip
+  mongodb-username = var.mongodb-username
+  mongodb-passwd   = var.mongodb-passwd
 }
 
 module "aws-webservice" {
