@@ -1,4 +1,4 @@
-name: Develop CI Pipeline
+name: Localstack Deployment (CD)
 
 on:
   push:

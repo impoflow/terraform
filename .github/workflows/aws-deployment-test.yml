@@ -1,4 +1,4 @@
-name: Develop CI Pipeline
+name: AWS Deployment (CD)
 
 on:
   push:

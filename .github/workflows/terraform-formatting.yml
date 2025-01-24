@@ -1,4 +1,4 @@
-name: Develop CI Pipeline
+name: Terraform Formatting (CI)
 
 on:
   push:

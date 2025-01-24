@@ -1,4 +1,4 @@
-name: Terraform Security Check
+name: Terraform Security Check (CI)
 
 on:
   push:
