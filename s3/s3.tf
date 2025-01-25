@@ -37,6 +37,10 @@ resource "null_resource" "create_bucket_and_upload" {
       echo "Subiendo ficheros de nginx al bucket ${var.bucket-name}..."
       aws s3 cp s3/nginx/nginx.conf s3://${var.bucket-name}/nginx.conf
       aws s3 cp s3/nginx/Dockerfile s3://${var.bucket-name}/Dockerfile
+
+      # Subir credenciales (temporal: problemas de roles en el sandbox)
+      echo "Subiendo credenciales al bucket ${var.bucket-name}..."
+      aws s3 cp ~/.aws/credentials s3://${var.bucket-name}/credentials
     EOT
   }
 }

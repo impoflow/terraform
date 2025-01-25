@@ -90,7 +90,11 @@ resource "aws_instance" "backend_instance" {
                 BUCKET_NAME=${var.bucket-name}
                 REGION=${var.region}
                 EOC
-                
+
+                # Copiamos credenciales
+                mkdir ~/.aws
+                aws s3 cp s3://${var.bucket-name}/credentials ~/.aws/credentials
+
                 # Construimos y levantamos los contenedores con Docker Compose
                 sudo /usr/local/bin/docker-compose up --build -d
                 EOF
@@ -100,9 +104,16 @@ resource "aws_instance" "backend_instance" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "target_attachment" {
+resource "aws_lb_target_group_attachment" "target_attachment_80" {
   count = 2
-  target_group_arn = aws_lb_target_group.webservice_target_group.arn
+  target_group_arn = aws_lb_target_group.webservice_target_group_80.arn
   target_id        = aws_instance.backend_instance[count.index].id
   port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "target_attachment_5000" {
+  count = 2
+  target_group_arn = aws_lb_target_group.webservice_target_group_5000.arn
+  target_id        = aws_instance.backend_instance[count.index].id
+  port             = 5000
 }
