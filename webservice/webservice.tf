@@ -92,8 +92,12 @@ resource "aws_instance" "backend_instance" {
                 EOC
 
                 # Copiamos credenciales
-                mkdir ~/.aws
-                aws s3 cp s3://${var.bucket-name}/credentials ~/.aws/credentials
+                mkdir /home/ec2-user/.aws
+                aws s3 cp s3://${var.bucket-name}/credentials /home/ec2-user/.aws/credentials
+
+                # Sustituimos backend_ip en client/script.js por la ip pública de la instancia conseguida usando curl ifconfig.me
+                PUBLIC_IP=$(curl ifconfig.me)
+                sed -i "s/{backend_ip}/$PUBLIC_IP/g" /home/ec2-user/webservice/client/script.js
 
                 # Construimos y levantamos los contenedores con Docker Compose
                 sudo /usr/local/bin/docker-compose up --build -d
