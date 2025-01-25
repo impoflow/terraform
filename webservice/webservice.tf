@@ -1,6 +1,3 @@
-resource "aws_eip" "backend" {
-}
-
 resource "aws_security_group" "backend_sg" {
   name        = "backend-security-group"
   description = "Grupo de seguridad para el backend"
@@ -50,9 +47,10 @@ resource "aws_security_group" "backend_sg" {
 }
 
 resource "aws_instance" "backend_instance" {
+  count = 2
   ami                    = "ami-0fff1b9a61dec8a5f" # Amazon Linux 2 AMI
   instance_type          = "t2.micro"
-  subnet_id              = var.subnet-id
+  subnet_id              = var.public-web-subnet-id
   key_name               = aws_key_pair.web_ssh_key.key_name
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
 
@@ -88,24 +86,23 @@ resource "aws_instance" "backend_instance" {
                 fi
                 
                 cd webservice
-                export INSTANCE_PUBLIC_IP=${aws_eip.backend.public_ip}
                 cat <<-EOC > /home/ec2-user/webservice/.env
                 BUCKET_NAME=${var.bucket-name}
                 REGION=${var.region}
                 EOC
-
-                sed -i "s/{backend_ip}/$INSTANCE_PUBLIC_IP/g" client/script.js
-
+                
                 # Construimos y levantamos los contenedores con Docker Compose
                 sudo /usr/local/bin/docker-compose up --build -d
                 EOF
 
   tags = {
-    Name = "Web-Service-Instance"
+    Name = "Web-service-instance-${count.index}"
   }
 }
 
-resource "aws_eip_association" "backend_eip_association" {
-  instance_id   = aws_instance.backend_instance.id
-  allocation_id = aws_eip.backend.id
+resource "aws_lb_target_group_attachment" "target_attachment" {
+  count = 2
+  target_group_arn = aws_lb_target_group.webservice_target_group.arn
+  target_id        = aws_instance.backend_instance[count.index].id
+  port             = 80
 }

@@ -48,6 +48,7 @@ module "aws-webservice" {
 
   vpc-id    = module.aws-network.vpc-id
   subnet-id = module.aws-network.subnet-id
+  public-web-subnet-id = module.aws-network.public-web-subnet-id
 
   bucket-name = var.bucket-name
   region      = var.region

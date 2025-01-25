@@ -14,6 +14,10 @@ variable "subnet-id" {
   type = string
 }
 
+variable "public-web-subnet-id" {
+  type = string
+}
+
 variable "key-name" {
   type = string
 }
