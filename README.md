@@ -2,6 +2,8 @@
 
 This repository contains the files required to deploy and manage cloud infrastructure using Terraform. The structure is organized into modules and directories based on different system components, such as networks, web services, databases, and Lambda functions.
 
+<img width="1128" alt="image" src="https://github.com/user-attachments/assets/39331966-bd3e-4669-ab4b-8689cc24f8c5" />
+
 ## Repository Structure
 
 ```
