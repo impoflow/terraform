@@ -52,6 +52,46 @@ resource "aws_lb_target_group" "webservice_target_group_5000" {
   }
 }
 
+resource "aws_lb_target_group" "webservice_target_group_5001" {
+  name     = "target-group-5001"
+  port     = 5001
+  protocol = "HTTP"
+  vpc_id   = var.vpc-id
+
+  health_check {
+    path                = "/health"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    protocol            = "HTTP"
+  }
+
+  tags = {
+    Name = "webservice-target-group-5001"
+  }
+}
+
+resource "aws_lb_target_group" "webservice_target_group_9090" {
+  name     = "target-group-9090"
+  port     = 9090
+  protocol = "HTTP"
+  vpc_id   = var.vpc-id
+
+  health_check {
+    path                = "/health"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    protocol            = "HTTP"
+  }
+
+  tags = {
+    Name = "webservice-target-group-9090"
+  }
+}
+
 resource "aws_lb_listener" "http_80" {
   load_balancer_arn = aws_lb.webservice_alb.arn
   port              = "80"
@@ -71,6 +111,28 @@ resource "aws_lb_listener" "http_5000" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.webservice_target_group_5000.arn
+  }
+}
+
+resource "aws_lb_listener" "http_5001" {
+  load_balancer_arn = aws_lb.webservice_alb.arn
+  port              = "5001"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.webservice_target_group_5001.arn
+  }
+}
+
+resource "aws_lb_listener" "http_9090" {
+  load_balancer_arn = aws_lb.webservice_alb.arn
+  port              = "9090"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.webservice_target_group_9090.arn
   }
 }
 

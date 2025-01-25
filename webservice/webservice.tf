@@ -117,3 +117,17 @@ resource "aws_lb_target_group_attachment" "target_attachment_5000" {
   target_id        = aws_instance.backend_instance[count.index].id
   port             = 5000
 }
+
+resource "aws_lb_target_group_attachment" "target_attachment_5001" {
+  count = 2
+  target_group_arn = aws_lb_target_group.webservice_target_group_5001.arn
+  target_id        = aws_instance.backend_instance[count.index].id
+  port             = 5001
+}
+
+resource "aws_lb_target_group_attachment" "target_attachment_9090" {
+  count = 2
+  target_group_arn = aws_lb_target_group.webservice_target_group_9090.arn
+  target_id        = aws_instance.backend_instance[count.index].id
+  port             = 9090
+}
